@@ -95,3 +95,7 @@ target/
 
 # Hydra logs
 outputs
+
+# Big Files
+data/
+models/
