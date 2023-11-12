@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "ds-project"
+name = {{cookiecutter.project_name}}
 version = "0.1.0"
-description = "Inital project structure for UCARE.AI data science team"
+description = {{cookiecutter.python_version}}
 authors = ["Vdovenko Anton"]
 readme = "README.md"
 packages = []
