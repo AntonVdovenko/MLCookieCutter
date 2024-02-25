@@ -1,6 +1,6 @@
 install: 
 	@echo "Installing..."
-	poetry install
+	poetry install --no-root
 	poetry run pre-commit install
 
 activate:
