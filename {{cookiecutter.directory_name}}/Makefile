@@ -13,6 +13,9 @@ initialize_git:
 test:
 	pytest
 
+python_src:
+	export PYTHONPATH=$(PWD)
+
 ## Delete all compiled Python files
 clean:
 	find . -type f -name "*.py[co]" -delete
