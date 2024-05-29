@@ -1,20 +1,30 @@
 repos:
--   repo: https://github.com/ambv/black
-    rev: 24.2.0
+-   repo: local
     hooks:
     - id: black
-      additional_dependencies: ['click==8.0.4']
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
-    rev: v0.0.271
+      name: black
+      entry: poetry run black
+      language: system
+      types: [python]
+-   repo: local
     hooks:
-      - id: ruff
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.13.0
+    - id: ruff
+      name: ruff
+      entry: poetry run ruff
+      language: system
+      types: [python]
+-   repo: local
     hooks:
-    -   id: isort
--   repo: https://github.com/econchick/interrogate
-    rev: 1.5.0
+    - id: isort
+      name: isort
+      entry: poetry run isort
+      language: system
+      types: [python]
+-   repo: local
     hooks:
-      - id: interrogate
-        args: [src, -v, -i, --fail-under=80]
+    - id: interrogate
+      name: interrogate
+      entry: poetry run interrogate
+      language: system
+      types: [python]
+      args: [src, -v, -i]

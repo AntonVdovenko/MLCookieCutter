@@ -1,13 +1,13 @@
 [tool.poetry]
-name = {{cookiecutter.project_name}}
+name = "{{cookiecutter.project_name}}"
 version = "0.1.0"
-description = {{cookiecutter.project_description}}
-authors = ["Vdovenko Anton"]
+description = "{{cookiecutter.project_description}}"
+authors = ["{{cookiecutter.authors}}"]
 readme = "README.md"
 packages = []
 
 [tool.poetry.dependencies]
-python = {{cookiecutter.python_version}}
+python = "{{cookiecutter.python_version}}"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.2"
@@ -16,6 +16,8 @@ interrogate = "^1.5.0"
 pytest = "^7.3.1"
 ruff = "^0.0.271"
 black = {extras = ["jupyter"], version = "^24.2.0"}
+pyyaml = "==6.0.1"
+dvc = {extras = ["s3"], version = "^3.51.1"}
 
 [tool.black]
 line-length = 88

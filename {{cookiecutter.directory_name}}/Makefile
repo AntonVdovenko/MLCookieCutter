@@ -1,14 +1,12 @@
-install: 
+start_project:
+	@echo "Shell activate"
+	poetry shell
+	@echo "Git init"
+	git init
 	@echo "Installing..."
 	poetry install --no-root
+	@echo "Pre Hooks commit Installing"
 	poetry run pre-commit install
-
-activate:
-	@echo "Activating virtual environment"
-	poetry shell
-
-initialize_git:
-	git init 
 
 test:
 	pytest
