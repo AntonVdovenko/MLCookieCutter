@@ -97,5 +97,5 @@ target/
 outputs
 
 # Big Files
-
+data/
 models/
