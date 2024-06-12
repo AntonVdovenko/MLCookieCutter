@@ -1,6 +1,8 @@
-start_project:
+create_env:
 	@echo "Shell activate"
 	poetry shell
+
+start_project:
 	@echo "Git init"
 	git init
 	@echo "Installing..."
