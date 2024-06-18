@@ -11,40 +11,13 @@ python = "{{cookiecutter.python_version}}"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.2"
-isort = "^5.13.0"
 interrogate = "^1.5.0"
 pytest = "^7.3.1"
-ruff = "^0.0.271"
-black = {extras = ["jupyter"], version = "^24.2.0"}
+ruff = "^0.4.9"
 pyyaml = "==6.0.1"
 dvc = {extras = ["s3"], version = "^3.51.1"}
-
-[tool.black]
-line-length = 88
-include = '\.pyi?$'
-exclude = '''
-/(
-	\.git
-| \.hg
-| \.mypy_cache
-| \.tox
-| \.venv
-| _build
-| buck-out
-| build   
-)/ 
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-atomic=true
-force_single_line=true
-lines_after_imports=2
-lines_between_types=1
-use_parentheses=true
-known_first_party="interrogate"
-known_third_party=["attr", "click", "py", "pytest", "setuptools", "tabulate"]
+gto = "^1.7.1"
+dvclive = "^3.46.1"
 
 [tool.interrogate]
 ignore-init-method = true
@@ -65,15 +38,15 @@ color = true
 
 [tool.ruff]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F"]
-ignore = []
+lint.select = ["E", "F"]
+lint.ignore = ["E501"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
-unfixable = []
+lint.fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+lint.unfixable = []
 
 # Exclude a variety of commonly ignored directories.
-exclude = [
+lint.exclude = [
     ".bzr",
     ".direnv",
     ".eggs",
@@ -98,15 +71,15 @@ exclude = [
 ]
 
 # Same as Black.
-line-length = 88
+line-length = 200
 
 # Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Assume Python 3.10.
 # target-version = "py310"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
