@@ -1,17 +1,8 @@
-create_env:
-	@echo "Shell activate"
-	poetry shell
-
-start_project:
-	@echo "Git init"
+init_project:
 	git init
-	@echo "Installing..."
-	poetry install --no-root
-	@echo "Pre Hooks commit Installing"
-	poetry run pre-commit install
-
-test:
-	pytest
+	uv sync
+	uv run pre-commit install
+	uv run pre-commit install --hook-type commit-msg
 
 python_src:
 	export PYTHONPATH=$(PWD)

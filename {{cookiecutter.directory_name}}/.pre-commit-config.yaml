@@ -1,22 +1,50 @@
+# See https://pre-commit.com for more information
 repos:
--   repo: local
+  # Ruff linter and formatter (local, using uvx)
+  - repo: local
     hooks:
-      - id: ruff
-        name: ruff
-        entry: ruff check
-        language: python
+      - id: ruff-check
+        name: ruff check
+        entry: uvx ruff check --fix --exit-non-zero-on-fix
+        language: system
         types: [python]
-        args: [--select, I, --fix]
+        exclude: '\.ipynb$'
       - id: ruff-format
-        name: ruff-format
-        entry: ruff format
-        language: python
+        name: ruff format
+        entry: uvx ruff format
+        language: system
         types: [python]
--   repo: local
+        exclude: '\.ipynb$'
+
+  # UV lock file maintenance
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.26
     hooks:
-    - id: interrogate
-      name: interrogate
-      entry: poetry run interrogate
-      language: system
-      types: [python]
-      args: [src, -v, -i]
+      - id: uv-lock
+        name: Check uv.lock is up to date
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: detect-private-key
+
+  # Conventional commit message validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+
+ci:
+  autofix_commit_msg: "style: auto-fix by pre-commit hooks"
+  autoupdate_commit_msg: "chore: update pre-commit hooks"

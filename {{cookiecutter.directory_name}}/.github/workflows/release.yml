@@ -1,0 +1,75 @@
+name: Semantic Release
+
+on:
+  push:
+    branches: [{{ cookiecutter.default_branch }}]
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  UV_CACHE_DIR: /tmp/.uv-cache
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    concurrency: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --group dev
+          uv pip install python-semantic-release
+
+      - name: Python Semantic Release
+        id: release
+        env:
+          GH_TOKEN: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+        run: |
+          VERSION=$(uv run semantic-release version --print)
+          if [ -n "$VERSION" ]; then
+            echo "released=true" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            uv run semantic-release version --no-push
+            uv lock --upgrade-package {{ cookiecutter.project_name }}
+            git add uv.lock
+            git commit --amend --no-edit
+            git tag -f "v$VERSION"
+            git push origin {{ cookiecutter.default_branch }} --tags
+          else
+            echo "released=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build package
+        if: {% raw %}steps.release.outputs.released == 'true'{% endraw %}
+        run: uv build
+
+      - name: Upload to GitHub Release
+        if: {% raw %}steps.release.outputs.released == 'true'{% endraw %}
+        env:
+          GH_TOKEN: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
+        run: |
+          gh release create "v{% raw %}${{ steps.release.outputs.version }}{% endraw %}" dist/* \
+            --title "v{% raw %}${{ steps.release.outputs.version }}{% endraw %}" \
+            --generate-notes
