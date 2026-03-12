@@ -2,6 +2,7 @@ init_project:
 	git init
 	uv sync
 	uv run pre-commit install
+	uv run pre-commit install --hook-type commit-msg
 
 python_src:
 	export PYTHONPATH=$(PWD)
