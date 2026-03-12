@@ -1,7 +1,10 @@
 {
     "directory_name": "DS_project",
-    "python_version": ">=3.12",
     "project_name": "default_project",
     "project_description": "default_description",
-    "target_python_version": "py312"
+    "python_version": ">=3.12",
+    "target_python_version": "py312",
+    "default_branch": "main",
+    "include_dvc": false,
+    "python_test_versions": "3.10, 3.11, 3.12"
 }
