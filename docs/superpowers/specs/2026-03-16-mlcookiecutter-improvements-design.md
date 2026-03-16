@@ -36,11 +36,16 @@ A critical audit of the MLCookieCutter template identified several bugs, inconsi
 
 A pre-generation validation hook that prevents generating a project with an impossible CI matrix.
 
+**File placement:** `hooks/pre_gen_project.py` at the cookiecutter **root** (same level as `cookiecutter.json`), not inside the template directory. The `hooks/` directory must be created if it does not exist.
+
 ### Logic
 
-1. Parse minimum Python version from `python_version` (strip operators: `>=`, `^`, `~=`, `==`)
+1. Parse minimum Python version from `python_version` (strip operators: `>=`, `>`, `^`, `~=`, `==`)
+   - For compound specifiers (e.g. `>=3.10,<4.0`): split on `,`, find the token with a lower-bound operator (`>=`, `>`, `~=`, `^`, `==`), strip its operator, use that version
+   - Bare version strings with no operator (e.g. `3.10`) are treated as `==3.10`
+   - If no lower bound can be extracted (e.g. `<4.0` only), skip validation entirely
 2. Parse each version from `python_test_versions` (split on `,`, strip whitespace)
-3. Compare: if any test version is below the minimum → `sys.exit(1)` with a descriptive error
+3. Compare using `packaging.version.Version`: if any test version is below the minimum → `sys.exit(1)` with a descriptive error
 
 ### Error message format
 
@@ -52,9 +57,17 @@ Fix: either lower python_version (e.g. >=3.10) or remove versions below the mini
 
 ### Edge cases
 
-- Handles `>=3.10`, `^3.10`, `~=3.10`, `==3.10` formats
-- Handles single-version test matrix (e.g. `3.12` only)
-- Skips validation if `python_version` has no lower bound (e.g. hypothetical `<4.0`)
+| Input | Behaviour |
+|---|---|
+| `>=3.10` | Extracts `3.10` as minimum |
+| `>3.10` | Extracts `3.10` as minimum (strictly greater; test version `3.10` would fail) |
+| `^3.10` | Extracts `3.10` as minimum |
+| `~=3.10` | Extracts `3.10` as minimum |
+| `==3.10` | Extracts `3.10` as minimum |
+| `3.10` (bare) | Treated as `==3.10` |
+| `>=3.10,<4.0` | Splits on `,`, extracts `3.10` from the `>=` token |
+| `<4.0` only | No lower bound found — validation skipped |
+| Single version in matrix (e.g. `3.12`) | Handled correctly |
 
 ---
 
@@ -70,14 +83,20 @@ File: `{{cookiecutter.directory_name}}/Dockerfile.base`
    - Works for any `pyXYZ` format
 3. **Fix typo** — `Intall` → `Install` in comment
 
-### Result (header of file)
+### Format assumption
+
+The slice expression `target_python_version[2:3]` and `target_python_version[3:]` assumes the value always follows the `pyXYZ` format (e.g. `py310`, `py311`, `py312`). To enforce this, `target_python_version` must be defined as a **choice field** in `cookiecutter.json` (not a free-form string). The available choices will be `["py310", "py311", "py312", "py313"]` with `py312` as default.
+
+### Result (full file — body unchanged from current, only header modified)
 
 ```dockerfile
 # Install uv
-FROM python:{{ cookiecutter.target_python_version[2:3] }}.{{ cookiecutter.target_python_version[3:] }}-slim-bookworm AS base
+FROM python:{{ cookiecutter.target_python_version[2:3] }}.{{ cookiecutter.target_python_version[3:] }}-slim-bookworm
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ```
+
+The `AS base` stage name is removed — there is only one stage, so a name adds no value. The rest of the file body (apt-get, uv sync, etc.) is preserved unchanged.
 
 ---
 
@@ -102,7 +121,17 @@ classifiers = [
     {%- for v in cookiecutter.python_test_versions.split(',') %}
     "Programming Language :: Python :: {{ v.strip() }}",
     {%- endfor %}
-    "License :: OSI Approved :: {{ cookiecutter.license }} License",
+    {%- if cookiecutter.license == "MIT" %}
+    "License :: OSI Approved :: MIT License",
+    {%- elif cookiecutter.license == "Apache-2.0" %}
+    "License :: OSI Approved :: Apache Software License",
+    {%- elif cookiecutter.license == "GPL-3.0" %}
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    {%- elif cookiecutter.license == "BSD-3-Clause" %}
+    "License :: OSI Approved :: BSD License",
+    {%- elif cookiecutter.license == "Proprietary" %}
+    "License :: Other/Proprietary License",
+    {%- endif %}
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
@@ -110,15 +139,15 @@ classifiers = [
 
 ### License classifier mapping
 
-| cookiecutter value | Classifier text |
+| cookiecutter value | PyPI classifier string |
 |---|---|
-| MIT | MIT License |
-| Apache-2.0 | Apache Software License |
-| GPL-3.0 | GNU General Public License v3 |
-| BSD-3-Clause | BSD License |
-| Proprietary | Other/Proprietary License |
+| MIT | `License :: OSI Approved :: MIT License` |
+| Apache-2.0 | `License :: OSI Approved :: Apache Software License` |
+| GPL-3.0 | `License :: OSI Approved :: GNU General Public License v3 (GPLv3)` |
+| BSD-3-Clause | `License :: OSI Approved :: BSD License` |
+| Proprietary | `License :: Other/Proprietary License` (no OSI Approved prefix) |
 
-This mapping is implemented directly in the template via a Jinja2 `if/elif` block for the classifiers line.
+Note: `GPL-3.0` is stored as the SPDX identifier in `license = {text = ...}`. The deprecated short-form `GPL-3.0` is used for user-friendliness in the cookiecutter choice; the classifier uses the full correct PyPI string.
 
 ---
 
@@ -168,7 +197,7 @@ File: `{{cookiecutter.directory_name}}/README.md`
    make init_project   # git init, uv sync, install pre-commit hooks
    uv run pytest       # run tests
    uv run ruff check . # lint
-   uv run ruff format .# format
+   uv run ruff format . # format
    ```
 
 5. **Python Version Compatibility Warning**
@@ -185,6 +214,7 @@ File: `{{cookiecutter.directory_name}}/README.md`
 |---|---|---|
 | `cookiecutter.json` | Fix `python_version` default from `>=3.12` to `>=3.10` | Critical |
 | `cookiecutter.json` | Add `author_name`, `author_email`, `license`, `keywords` variables | High |
+| `cookiecutter.json` | Change `target_python_version` from free-form string to choice field | High |
 | `hooks/pre_gen_project.py` | New file: validates test versions >= python_version minimum | Critical |
 | `Dockerfile.base` | Remove dead first FROM block | High |
 | `Dockerfile.base` | Parameterize Python version from `target_python_version` | High |
