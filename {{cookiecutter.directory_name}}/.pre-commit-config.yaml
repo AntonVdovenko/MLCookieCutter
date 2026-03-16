@@ -1,17 +1,17 @@
 # See https://pre-commit.com for more information
 repos:
-  # Ruff linter and formatter (local, using uvx)
+  # Ruff linter and formatter (local, using uv run)
   - repo: local
     hooks:
       - id: ruff-check
         name: ruff check
-        entry: uvx ruff check --fix --exit-non-zero-on-fix
+        entry: uv run ruff check --fix --exit-non-zero-on-fix
         language: system
         types: [python]
         exclude: '\.ipynb$'
       - id: ruff-format
         name: ruff format
-        entry: uvx ruff format
+        entry: uv run ruff format
         language: system
         types: [python]
         exclude: '\.ipynb$'
