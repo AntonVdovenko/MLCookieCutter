@@ -7,7 +7,35 @@ name = "{{cookiecutter.project_name}}"
 dynamic = ["version"]
 description = "{{cookiecutter.project_description}}"
 readme = "README.md"
-requires-python = "{{cookiecutter.python_version}}"
+requires-python = ">={{cookiecutter.python_version}}"
+authors = [
+    {name = "{{cookiecutter.author_name}}", email = "{{cookiecutter.author_email}}"}
+]
+license = {text = "{{cookiecutter.license}}"}
+keywords = [
+{%- for kw in cookiecutter.keywords.split(',') if kw.strip() %}
+    "{{ kw.strip() }}",
+{%- endfor %}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+{%- for v in cookiecutter.python_test_versions.split(',') %}
+    "Programming Language :: Python :: {{ v.strip() }}",
+{%- endfor %}
+{%- if cookiecutter.license == "MIT" %}
+    "License :: OSI Approved :: MIT License",
+{%- elif cookiecutter.license == "Apache-2.0" %}
+    "License :: OSI Approved :: Apache Software License",
+{%- elif cookiecutter.license == "GPL-3.0" %}
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+{%- elif cookiecutter.license == "BSD-3-Clause" %}
+    "License :: OSI Approved :: BSD License",
+{%- elif cookiecutter.license == "Proprietary" %}
+    "License :: Other/Proprietary License",
+{%- endif %}
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = []
 
 # ---------- UV Configuration ----------
@@ -40,7 +68,7 @@ local_scheme = "no-local-version"
 
 # ---------- Ruff Configuration ----------
 [tool.ruff]
-target-version = "{{cookiecutter.target_python_version}}"
+target-version = "py{{ cookiecutter.python_version | replace('.', '') }}"
 line-length = 100
 src = ["src", "tests"]
 
