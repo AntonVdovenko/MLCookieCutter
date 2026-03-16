@@ -23,12 +23,16 @@ A critical audit of the MLCookieCutter template identified several bugs, inconsi
 | `license` | choice | `"MIT"` | Options: MIT, Apache-2.0, GPL-3.0, BSD-3-Clause, Proprietary |
 | `keywords` | string | `""` | Comma-separated PyPI keywords, e.g. `machine-learning, mlops` |
 
-### Default fixes
+### Variable changes
 
-- `python_version`: `>=3.12` → `>=3.10` — aligns with `python_test_versions` default floor of `3.10`
+- **`python_version`**: changed from constraint format (`>=3.12`) to bare version number (`3.12`). Default: `3.10`. All derived usages:
+  - `requires-python` in `pyproject.toml` → `">={{ cookiecutter.python_version }}"`
+  - ruff `target-version` → `"py{{ cookiecutter.python_version | replace('.', '') }}"` (e.g. `py310`)
+  - Docker image tag → `python:{{ cookiecutter.python_version }}-slim-bookworm`
+- **`target_python_version`**: **removed entirely** — derived from `python_version` via Jinja2 filters
 - `python_test_versions`: unchanged (`3.10, 3.11, 3.12`)
 
-**Rationale:** The previous defaults were inconsistent — requiring Python >=3.12 while attempting to test on 3.10 and 3.11.
+**Rationale:** The previous defaults were inconsistent — requiring Python >=3.12 while testing on 3.10 and 3.11. Having both `python_version` and `target_python_version` as separate inputs was redundant and error-prone; a single `python_version` variable with derivations eliminates duplication.
 
 ---
 
@@ -40,34 +44,28 @@ A pre-generation validation hook that prevents generating a project with an impo
 
 ### Logic
 
-1. Parse minimum Python version from `python_version` (strip operators: `>=`, `>`, `^`, `~=`, `==`)
-   - For compound specifiers (e.g. `>=3.10,<4.0`): split on `,`, find the token with a lower-bound operator (`>=`, `>`, `~=`, `^`, `==`), strip its operator, use that version
-   - Bare version strings with no operator (e.g. `3.10`) are treated as `==3.10`
-   - If no lower bound can be extracted (e.g. `<4.0` only), skip validation entirely
-2. Parse each version from `python_test_versions` (split on `,`, strip whitespace)
-3. Compare using `packaging.version.Version`: if any test version is below the minimum → `sys.exit(1)` with a descriptive error
+Since `python_version` is now a bare version number (e.g. `3.10`), the hook is straightforward:
+
+1. Parse `python_version` as `packaging.version.Version` — no operator stripping needed
+2. Parse each version from `python_test_versions` (split on `,`, strip whitespace) as `packaging.version.Version`
+3. If any test version is below `python_version` → `sys.exit(1)` with a descriptive error
 
 ### Error message format
 
 ```
-ERROR: python_test_versions contains '3.10' but python_version requires >=3.11.
-All test versions must be >= the minimum python_version.
-Fix: either lower python_version (e.g. >=3.10) or remove versions below the minimum from python_test_versions.
+ERROR: python_test_versions contains '3.10' but python_version is 3.11.
+All test versions must be >= python_version.
+Fix: either lower python_version (e.g. 3.10) or remove versions below the minimum from python_test_versions.
 ```
 
 ### Edge cases
 
 | Input | Behaviour |
 |---|---|
-| `>=3.10` | Extracts `3.10` as minimum |
-| `>3.10` | Extracts `3.10` as minimum (strictly greater; test version `3.10` would fail) |
-| `^3.10` | Extracts `3.10` as minimum |
-| `~=3.10` | Extracts `3.10` as minimum |
-| `==3.10` | Extracts `3.10` as minimum |
-| `3.10` (bare) | Treated as `==3.10` |
-| `>=3.10,<4.0` | Splits on `,`, extracts `3.10` from the `>=` token |
-| `<4.0` only | No lower bound found — validation skipped |
+| `python_version = 3.10`, test versions `3.10, 3.11, 3.12` | All valid |
+| `python_version = 3.11`, test versions `3.10, 3.11, 3.12` | Error: `3.10` is below `3.11` |
 | Single version in matrix (e.g. `3.12`) | Handled correctly |
+| Invalid version string (e.g. `abc`) | Error with descriptive message |
 
 ---
 
@@ -78,20 +76,14 @@ File: `{{cookiecutter.directory_name}}/Dockerfile.base`
 ### Changes
 
 1. **Remove dead code** — the first `FROM` block (orphaned multi-stage attempt, never referenced) is deleted entirely
-2. **Parameterize Python version** — replace hardcoded `3.12` with a Jinja2 expression derived from `target_python_version`:
-   - `py312` → `{{ cookiecutter.target_python_version[2:3] }}.{{ cookiecutter.target_python_version[3:] }}` → `3.12`
-   - Works for any `pyXYZ` format
+2. **Parameterize Python version** — replace hardcoded `3.12` with `{{ cookiecutter.python_version }}` (now a bare version number like `3.10`)
 3. **Fix typo** — `Intall` → `Install` in comment
-
-### Format assumption
-
-The slice expression `target_python_version[2:3]` and `target_python_version[3:]` assumes the value always follows the `pyXYZ` format (e.g. `py310`, `py311`, `py312`). To enforce this, `target_python_version` must be defined as a **choice field** in `cookiecutter.json` (not a free-form string). The available choices will be `["py310", "py311", "py312", "py313"]` with `py312` as default.
 
 ### Result (full file — body unchanged from current, only header modified)
 
 ```dockerfile
 # Install uv
-FROM python:{{ cookiecutter.target_python_version[2:3] }}.{{ cookiecutter.target_python_version[3:] }}-slim-bookworm
+FROM python:{{ cookiecutter.python_version }}-slim-bookworm
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ```
@@ -212,12 +204,11 @@ File: `{{cookiecutter.directory_name}}/README.md`
 
 | Area | Change | Severity fixed |
 |---|---|---|
-| `cookiecutter.json` | Fix `python_version` default from `>=3.12` to `>=3.10` | Critical |
+| `cookiecutter.json` | Change `python_version` to bare version (`3.10`), remove `target_python_version` | Critical |
 | `cookiecutter.json` | Add `author_name`, `author_email`, `license`, `keywords` variables | High |
-| `cookiecutter.json` | Change `target_python_version` from free-form string to choice field | High |
 | `hooks/pre_gen_project.py` | New file: validates test versions >= python_version minimum | Critical |
 | `Dockerfile.base` | Remove dead first FROM block | High |
-| `Dockerfile.base` | Parameterize Python version from `target_python_version` | High |
+| `Dockerfile.base` | Parameterize Python version from `python_version` | High |
 | `Dockerfile.base` | Fix typo "Intall" | Low |
 | `pyproject.toml` | Add authors, license, keywords, classifiers | High |
 | `.pre-commit-config.yaml` | Replace `uvx ruff` with `uv run ruff` | Medium |
