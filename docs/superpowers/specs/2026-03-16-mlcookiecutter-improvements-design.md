@@ -46,9 +46,11 @@ A pre-generation validation hook that prevents generating a project with an impo
 
 Since `python_version` is now a bare version number (e.g. `3.10`), the hook is straightforward:
 
-1. Parse `python_version` as `packaging.version.Version` — no operator stripping needed
-2. Parse each version from `python_test_versions` (split on `,`, strip whitespace) as `packaging.version.Version`
-3. If any test version is below `python_version` → `sys.exit(1)` with a descriptive error
+1. Parse `python_version` as a version tuple: `tuple(int(x) for x in python_version.split('.'))` — no external dependencies needed
+2. Parse each version from `python_test_versions` (split on `,`, strip whitespace) as version tuples the same way
+3. If any test version tuple is below `python_version` tuple → `sys.exit(1)` with a descriptive error
+
+**Note:** Uses stdlib-only version comparison (no `packaging` dependency). This ensures the hook works in any Python environment without requiring third-party libraries.
 
 ### Error message format
 
@@ -95,6 +97,11 @@ The `AS base` stage name is removed — there is only one stage, so a name adds 
 ## 4. `pyproject.toml` Metadata
 
 File: `{{cookiecutter.directory_name}}/pyproject.toml`
+
+### Changes to existing fields
+
+- `requires-python`: change from `"{{cookiecutter.python_version}}"` to `">={{ cookiecutter.python_version }}"` (since `python_version` is now a bare number)
+- `[tool.ruff] target-version`: change from `"{{cookiecutter.target_python_version}}"` to `"py{{ cookiecutter.python_version | replace('.', '') }}"` (since `target_python_version` is removed)
 
 ### New `[project]` fields
 
@@ -143,7 +150,25 @@ Note: `GPL-3.0` is stored as the SPDX identifier in `license = {text = ...}`. Th
 
 ---
 
-## 5. Pre-commit & CHANGELOG
+## 5. LICENSE File
+
+File: `{{cookiecutter.directory_name}}/LICENSE`
+
+A LICENSE file is generated based on the user's `license` choice. Each license option maps to a full license text template:
+
+| cookiecutter value | Generated LICENSE content |
+|---|---|
+| MIT | Full MIT license text with `{{cookiecutter.author_name}}` and year |
+| Apache-2.0 | Full Apache 2.0 license text |
+| GPL-3.0 | Full GPL v3 license text |
+| BSD-3-Clause | Full BSD 3-Clause text with `{{cookiecutter.author_name}}` and year |
+| Proprietary | Stub: `Copyright (c) {{cookiecutter.author_name}}. All rights reserved.` |
+
+The year is hardcoded at generation time using a Jinja2 `now` extension or set via cookiecutter context. If `now` is not available, a `{{ cookiecutter._year }}` private variable can be set in `hooks/pre_gen_project.py` — however, cookiecutter hooks cannot inject new template variables. Instead, use a `post_gen_project.py` hook that reads the LICENSE file, replaces a `{YEAR}` placeholder with `datetime.now().year`, and writes it back.
+
+---
+
+## 6. Pre-commit & CHANGELOG
 
 ### `.pre-commit-config.yaml`
 
@@ -159,7 +184,7 @@ Add an empty `CHANGELOG.md` to the template. Tracked from project creation so se
 
 ---
 
-## 6. Generated README
+## 7. Generated README
 
 File: `{{cookiecutter.directory_name}}/README.md`
 
@@ -180,11 +205,20 @@ File: `{{cookiecutter.directory_name}}/README.md`
    - **python-semantic-release** — reads conventional commits to determine version bumps, writes `CHANGELOG.md`, tags releases, and publishes to GitHub Releases
    - **DVC** *(conditional — only rendered when `include_dvc == "true"`)* — data version control; tracks large files and datasets outside git, supports S3 remote storage; `dvclive` provides experiment tracking
 
-3. **GitHub Actions**
+3. **Project Structure** — explains what each directory is for:
+   - `src/` — source code for the project
+   - `tests/` — test files (pytest)
+   - `config/` — configuration files (YAML, JSON, etc.)
+   - `data/` — datasets (not tracked by git; use DVC if enabled)
+   - `models/` — trained model artifacts
+   - `notebooks/` — Jupyter notebooks for exploration and analysis
+   - `docs/` — project documentation
+
+4. **GitHub Actions**
    - **`ci.yml`** — triggered on pull requests; runs ruff lint check and pytest across the configured Python version matrix (`{{cookiecutter.python_test_versions}}`)
    - **`release.yml`** — triggered on push to `{{cookiecutter.default_branch}}`; runs python-semantic-release to bump version, update changelog, tag, and publish GitHub Release
 
-4. **Getting Started**
+5. **Getting Started**
    ```bash
    make init_project   # git init, uv sync, install pre-commit hooks
    uv run pytest       # run tests
@@ -192,10 +226,10 @@ File: `{{cookiecutter.directory_name}}/README.md`
    uv run ruff format . # format
    ```
 
-5. **Python Version Compatibility Warning**
+6. **Python Version Compatibility Warning**
    > **Note:** All versions listed in `python_test_versions` must be >= the minimum version in `python_version`. Mismatches will cause CI failures. This is validated at project generation time.
 
-6. **License**
+7. **License**
    - `This project is licensed under the {{cookiecutter.license}} license.`
 
 ---
@@ -210,10 +244,12 @@ File: `{{cookiecutter.directory_name}}/README.md`
 | `Dockerfile.base` | Remove dead first FROM block | High |
 | `Dockerfile.base` | Parameterize Python version from `python_version` | High |
 | `Dockerfile.base` | Fix typo "Intall" | Low |
+| `pyproject.toml` | Update `requires-python` and ruff `target-version` derivations | High |
 | `pyproject.toml` | Add authors, license, keywords, classifiers | High |
+| `LICENSE` | New file: generated from license choice with full license text | High |
 | `.pre-commit-config.yaml` | Replace `uvx ruff` with `uv run ruff` | Medium |
 | `CHANGELOG.md` | Add empty boilerplate file | Medium |
-| `README.md` | Full template with tooling docs, GitHub Actions docs, badges, warning | High |
+| `README.md` | Full template with tooling docs, project structure, GitHub Actions docs, badges, warning | High |
 
 ---
 
