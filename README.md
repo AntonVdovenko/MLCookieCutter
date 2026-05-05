@@ -28,7 +28,8 @@ You will be prompted for:
 | Variable | Description | Default |
 |---|---|---|
 | `directory_name` | Project directory name | `DS_project` |
-| `project_name` | Python package name | `default_project` |
+| `project_name` | Distribution/project name for `pyproject.toml` | `default_project` |
+| `package_name` | Python import package name under `src/` | derived from `project_name` |
 | `project_description` | Short description | `default_description` |
 | `author_name` | Author name (for LICENSE and pyproject.toml) | `Your Name` |
 | `author_email` | Author email | `your@email.com` |
@@ -52,7 +53,8 @@ This runs `git init`, `uv sync`, and installs pre-commit hooks.
 
 ```
 your_project/
-├── src/              # Source code
+├── src/
+│   └── package_name/ # Importable Python package
 ├── tests/            # Tests (pytest)
 ├── config/           # Configuration files
 ├── data/             # Datasets (gitignored)

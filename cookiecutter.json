@@ -1,6 +1,7 @@
 {
     "directory_name": "DS_project",
     "project_name": "default_project",
+    "package_name": "{{ cookiecutter.project_name | lower | replace('-', '_') | replace(' ', '_') | replace('.', '_') }}",
     "project_description": "default_description",
     "author_name": "Your Name",
     "author_email": "your@email.com",
