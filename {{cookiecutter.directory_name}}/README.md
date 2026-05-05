@@ -45,7 +45,8 @@ Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-r
 
 ```
 {{ cookiecutter.directory_name }}/
-├── src/              # Source code
+├── src/
+│   └── {{ cookiecutter.package_name }}/ # Importable Python package
 ├── tests/            # Test files (pytest)
 ├── config/           # Configuration files (YAML, JSON, etc.)
 ├── data/             # Datasets (not tracked by git{% if cookiecutter.include_dvc == "true" %}; use DVC{% endif %})
