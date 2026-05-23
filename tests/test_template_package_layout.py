@@ -65,6 +65,23 @@ def test_template_creates_importable_package_layout(tmp_path: Path) -> None:
     assert "import high_view_power_interview" in smoke_test
 
 
+def test_template_renders_python_test_matrix_with_or_without_spaces(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, python_test_versions="3.12,3.13")
+
+    ci_workflow = (generated / ".github" / "workflows" / "ci.yml").read_text()
+    assert '          "3.12",' in ci_workflow
+    assert '          "3.13"' in ci_workflow
+    assert "3.12,3.13" not in ci_workflow
+
+
+def test_template_trims_python_test_matrix_entries(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, python_test_versions=" 3.12 , 3.13 ")
+
+    ci_workflow = (generated / ".github" / "workflows" / "ci.yml").read_text()
+    assert '          "3.12",' in ci_workflow
+    assert '          "3.13"' in ci_workflow
+
+
 def test_template_rejects_invalid_package_name(tmp_path: Path) -> None:
     with pytest.raises(FailedHookException):
         render_template(tmp_path, package_name="invalid-package-name")

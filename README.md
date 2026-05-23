@@ -38,7 +38,7 @@ You will be prompted for:
 | `license` | License type | `MIT` (also: Apache-2.0, GPL-3.0, BSD-3-Clause, Proprietary) |
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
-| `python_test_versions` | Python versions for CI test matrix | `3.10, 3.11, 3.12` |
+| `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12` |
 
 Then initialize your project:
 
