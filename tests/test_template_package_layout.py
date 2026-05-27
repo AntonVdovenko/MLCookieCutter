@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -6,6 +7,7 @@ from cookiecutter.main import cookiecutter
 
 
 TEMPLATE_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PYTHON_TEST_VERSIONS = "3.10, 3.11, 3.12, 3.13, 3.14"
 
 
 def render_template(tmp_path: Path, **extra_context: str) -> Path:
@@ -63,6 +65,34 @@ def test_template_creates_importable_package_layout(tmp_path: Path) -> None:
 
     smoke_test = (generated / "tests" / "test_package.py").read_text()
     assert "import high_view_power_interview" in smoke_test
+
+
+def test_default_python_test_matrix_tracks_current_stable_versions() -> None:
+    cookiecutter_config = json.loads((TEMPLATE_ROOT / "cookiecutter.json").read_text())
+
+    assert cookiecutter_config["python_test_versions"] == DEFAULT_PYTHON_TEST_VERSIONS
+
+    readme = (TEMPLATE_ROOT / "README.md").read_text()
+    assert "| `python_test_versions` |" in readme
+    assert f"| `{DEFAULT_PYTHON_TEST_VERSIONS}` |" in readme
+
+
+def test_template_renders_current_stable_python_test_matrix(tmp_path: Path) -> None:
+    generated = render_template(
+        tmp_path,
+        python_version="3.10",
+        python_test_versions=DEFAULT_PYTHON_TEST_VERSIONS,
+    )
+
+    ci_workflow = (generated / ".github" / "workflows" / "ci.yml").read_text()
+    pyproject = (generated / "pyproject.toml").read_text()
+    project_readme = (generated / "README.md").read_text()
+
+    for version in ["3.10", "3.11", "3.12", "3.13", "3.14"]:
+        assert f'"{version}"' in ci_workflow
+        assert f"Programming Language :: Python :: {version}" in pyproject
+
+    assert DEFAULT_PYTHON_TEST_VERSIONS in project_readme
 
 
 def test_template_renders_python_test_matrix_with_or_without_spaces(tmp_path: Path) -> None:
