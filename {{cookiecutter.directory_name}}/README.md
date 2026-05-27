@@ -67,7 +67,7 @@ uv run ruff check .  # lint
 uv run ruff format . # format
 ```
 
-> **Note:** All versions listed in `python_test_versions` ({{ cookiecutter.python_test_versions }}) must be >= the minimum `python_version` ({{ cookiecutter.python_version }}). Mismatches will cause CI failures. This is validated at project generation time.
+> **Note:** All versions listed in `python_test_versions` ({{ cookiecutter.python_test_versions }}) must be >= the minimum `python_version` ({{ cookiecutter.python_version }}). Mismatches are rejected at project generation time. Keep the matrix on stable Python versions supported by GitHub Actions / `uv python install`.
 
 ## License
 
