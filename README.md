@@ -15,6 +15,9 @@ A ready-to-use project with:
 - **[DVC](https://dvc.org/)** *(optional)* — data version control with S3 support
 - **GitHub Actions** — CI (lint + test matrix) and automated release workflows
 - **Docker** — base Dockerfile with uv
+- **Agentic development docs** — generated docs, engineering logs, feature
+  specs, `CLAUDE.md`, and `AGENTS.md` so Claude Code, Codex, and terminal
+  agents follow the same implementation-context workflow
 
 ## Quick Start
 
@@ -58,7 +61,9 @@ your_project/
 ├── data/             # Datasets (gitignored)
 ├── models/           # Model artifacts
 ├── notebooks/        # Jupyter notebooks
-├── docs/             # Documentation
+├── docs/             # Docs, engineering logs, specs, API/setup/architecture, experiment records
+├── CLAUDE.md         # Claude Code instructions
+├── AGENTS.md         # Codex and terminal-agent instructions
 ├── .github/workflows # CI and release workflows
 ├── pyproject.toml    # Project metadata and tool config
 ├── Makefile          # Dev commands
@@ -72,3 +77,24 @@ your_project/
 
 The template validates your inputs at generation time:
 - All `python_test_versions` must be >= `python_version`. If you set `python_version` to `3.11` but include `3.10` in the test matrix, the template will error before generating.
+
+## Agentic Development Flow
+
+Generated projects include a documentation workflow for human and agentic
+development:
+
+- `docs/engineering-logs.md` records timestamped implementation context and is
+  the first file agents should read during debugging.
+- `docs/feature-specs/` stores human-written specs for feature, fix, task, and
+  experiment work. Agent additions use italics, and reversals of human context
+  use strikethrough.
+- `docs/C4_ARCHITECTURE.md`, `docs/API_DOCUMENTATION.md`, and
+  `docs/SETUP_and_TESTING_GUIDE.md` cover production architecture, external
+  contracts, setup, deployment, and validation.
+- `docs/Dataset.md`, `docs/Experiments.md`, `docs/STATUS.md`, and
+  `docs/Evaluation_and_findings.md` cover experiment and evaluation repos.
+- `CLAUDE.md` and `AGENTS.md` make the same rules visible to Claude Code, Codex,
+  and other terminal agents.
+
+PR descriptions should point reviewers to the relevant docs, with priority on
+human-authored specs and context.
