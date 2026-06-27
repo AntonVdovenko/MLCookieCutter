@@ -42,7 +42,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [{{ cookiecutter.python_test_versions.split(', ') | map('tojson') | join(', ') }}]
+        python-version: [
+{%- for version in cookiecutter.python_test_versions.split(',') %}
+          {{ version.strip() | tojson }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+        ]
 
     steps:
       - uses: actions/checkout@v4
