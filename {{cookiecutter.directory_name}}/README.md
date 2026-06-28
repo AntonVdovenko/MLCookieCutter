@@ -5,6 +5,43 @@
 ![CI](https://github.com/USERNAME/{{ cookiecutter.project_name }}/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python->%3D{{ cookiecutter.python_version }}-blue)
 
+## Documentation and Agentic Development
+
+This repository is set up so humans and coding agents can preserve
+implementation context across features, experiments, deployments, and debugging
+sessions.
+
+Start here:
+
+1. Read this README for the repository overview.
+2. Read `docs/SETUP_and_TESTING_GUIDE.md` for local setup and validation.
+3. Read `docs/engineering-logs.md` before debugging or changing behavior.
+4. Read the relevant human-written spec in `docs/feature-specs/` before
+   implementing a feature, fix, or experiment change.
+
+Agent instructions:
+
+- Claude Code: `CLAUDE.md`
+- Codex and terminal agents: `AGENTS.md`
+
+Documentation map:
+
+| Document | Purpose |
+|---|---|
+| `docs/engineering-logs.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
+| `docs/feature-specs/` | Human-written feature, fix, task, and experiment specs. Agent additions use italics; reversals of human context use strikethrough. |
+| `docs/C4_ARCHITECTURE.md` | Production architecture diagrams and service/data-flow context. Mandatory for production services. |
+| `docs/API_DOCUMENTATION.md` | External integration contract. Mandatory for production services. |
+| `docs/SETUP_and_TESTING_GUIDE.md` | Local setup, Docker, Kubernetes/Helm, smoke tests, regression tests, stress tests, and evaluation commands. |
+| `docs/Dataset.md` | Dataset names, versions, paths, generation steps, and curation rationale for experiment repos. |
+| `docs/Experiments.md` | Experiment plans, methods, phases, output paths, drawbacks, and open questions. |
+| `docs/STATUS.md` | Live status of experiments and evaluation work. |
+| `docs/Evaluation_and_findings.md` | Evaluation settings, benchmarks, results, and qualitative/quantitative findings. |
+
+PR descriptions should point reviewers to the relevant docs. Review priority is
+human-authored specs and context first, then agent-authored or agent-updated
+architecture, API, setup, and engineering-log entries.
+
 ## Tooling
 
 This project uses the following tools:
@@ -52,7 +89,9 @@ Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-r
 ├── data/             # Datasets (not tracked by git{% if cookiecutter.include_dvc == "true" %}; use DVC{% endif %})
 ├── models/           # Trained model artifacts
 ├── notebooks/        # Jupyter notebooks for exploration and analysis
-├── docs/             # Project documentation
+├── docs/             # Project docs, specs, logs, and experiment records
+├── CLAUDE.md         # Claude Code instructions
+├── AGENTS.md         # Codex and terminal-agent instructions
 ├── pyproject.toml    # Project metadata and tool configuration
 ├── Makefile          # Common development commands
 └── Dockerfile.base   # Docker image definition
