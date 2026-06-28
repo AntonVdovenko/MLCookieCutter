@@ -17,7 +17,7 @@ YYYY-MM-DD-developer-name-short-feature-name.md
 Example:
 
 ```text
-2026-06-27-aishik-persistent-memory.md
+2026-06-27-anton-persistent-memory.md
 ```
 
 ## Editing Rules

@@ -1,5 +1,6 @@
 """Pre-generation hook: validates cookiecutter inputs before generating the project."""
 
+import keyword
 import sys
 
 
@@ -33,5 +34,18 @@ def validate_python_versions():
             sys.exit(1)
 
 
+def validate_package_name():
+    """Ensure package_name can be used in Python imports."""
+    package_name = "{{ cookiecutter.package_name }}"
+
+    if not package_name.isidentifier() or keyword.iskeyword(package_name):
+        print(
+            f"ERROR: package_name '{package_name}' is not a valid Python package name.\n"
+            "Use a valid Python identifier, for example: my_project"
+        )
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     validate_python_versions()
+    validate_package_name()

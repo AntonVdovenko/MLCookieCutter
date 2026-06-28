@@ -1,6 +1,7 @@
 {
     "directory_name": "DS_project",
     "project_name": "default_project",
+    "package_name": "{{ cookiecutter.project_name | lower | replace('-', '_') | replace(' ', '_') | replace('.', '_') }}",
     "project_description": "default_description",
     "author_name": "Your Name",
     "author_email": "your@email.com",
@@ -9,5 +10,5 @@
     "license": ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause", "Proprietary"],
     "keywords": "",
     "include_dvc": "false",
-    "python_test_versions": "3.10, 3.11, 3.12"
+    "python_test_versions": "3.10, 3.11, 3.12, 3.13, 3.14"
 }

@@ -82,7 +82,8 @@ Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-r
 
 ```
 {{ cookiecutter.directory_name }}/
-├── src/              # Source code
+├── src/
+│   └── {{ cookiecutter.package_name }}/ # Importable Python package
 ├── tests/            # Test files (pytest)
 ├── config/           # Configuration files (YAML, JSON, etc.)
 ├── data/             # Datasets (not tracked by git{% if cookiecutter.include_dvc == "true" %}; use DVC{% endif %})
@@ -105,7 +106,7 @@ uv run ruff check .  # lint
 uv run ruff format . # format
 ```
 
-> **Note:** All versions listed in `python_test_versions` ({{ cookiecutter.python_test_versions }}) must be >= the minimum `python_version` ({{ cookiecutter.python_version }}). Mismatches will cause CI failures. This is validated at project generation time.
+> **Note:** All versions listed in `python_test_versions` ({{ cookiecutter.python_test_versions }}) must be >= the minimum `python_version` ({{ cookiecutter.python_version }}). Mismatches are rejected at project generation time. Keep the matrix on stable Python versions supported by GitHub Actions / `uv python install`.
 
 ## License
 

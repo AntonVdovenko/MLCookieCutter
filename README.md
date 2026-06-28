@@ -31,7 +31,8 @@ You will be prompted for:
 | Variable | Description | Default |
 |---|---|---|
 | `directory_name` | Project directory name | `DS_project` |
-| `project_name` | Python package name | `default_project` |
+| `project_name` | Distribution/project name for `pyproject.toml` | `default_project` |
+| `package_name` | Python import package name under `src/` | derived from `project_name` |
 | `project_description` | Short description | `default_description` |
 | `author_name` | Author name (for LICENSE and pyproject.toml) | `Your Name` |
 | `author_email` | Author email | `your@email.com` |
@@ -40,7 +41,7 @@ You will be prompted for:
 | `license` | License type | `MIT` (also: Apache-2.0, GPL-3.0, BSD-3-Clause, Proprietary) |
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
-| `python_test_versions` | Python versions for CI test matrix | `3.10, 3.11, 3.12` |
+| `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12, 3.13, 3.14` |
 
 Then initialize your project:
 
@@ -55,7 +56,8 @@ This runs `git init`, `uv sync`, and installs pre-commit hooks.
 
 ```
 your_project/
-├── src/              # Source code
+├── src/
+│   └── package_name/ # Importable Python package
 ├── tests/            # Tests (pytest)
 ├── config/           # Configuration files
 ├── data/             # Datasets (gitignored)
@@ -77,6 +79,7 @@ your_project/
 
 The template validates your inputs at generation time:
 - All `python_test_versions` must be >= `python_version`. If you set `python_version` to `3.11` but include `3.10` in the test matrix, the template will error before generating.
+- Keep the default CI matrix on stable Python minors that are available in GitHub Actions / `uv python install`. Add future versions such as `3.15` once the runner/tooling ecosystem supports them, rather than deriving versions automatically from the minimum Python version.
 
 ## Agentic Development Flow
 
