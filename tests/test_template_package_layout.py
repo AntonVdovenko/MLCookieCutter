@@ -167,12 +167,12 @@ def test_minimal_docs_set_is_default(tmp_path: Path) -> None:
     assert (docs / "feature-specs" / "README.md").is_file()
 
     readme = (generated / "README.md").read_text()
-    assert "SETUP_and_TESTING_GUIDE" not in readme
+    assert "SETUP_AND_TESTING_GUIDE" not in readme
     assert "feature-specs" in readme
     for name in ("CLAUDE.md", "AGENTS.md"):
         agent_doc = (generated / name).read_text()
         assert "docs/feature-specs" in agent_doc
-        assert "SETUP_and_TESTING_GUIDE" not in agent_doc
+        assert "SETUP_AND_TESTING_GUIDE" not in agent_doc
         assert "## Experiment Repository Docs" not in agent_doc
         assert "docs/ENGINEERING_LOGS.md" in agent_doc
 
@@ -186,7 +186,7 @@ def test_full_docs_set_keeps_all_docs(tmp_path: Path) -> None:
     assert (docs / "feature-specs" / "README.md").is_file()
 
     readme = (generated / "README.md").read_text()
-    assert "SETUP_and_TESTING_GUIDE" in readme
+    assert "SETUP_AND_TESTING_GUIDE" in readme
     assert "feature-specs" in readme
     for name in ("CLAUDE.md", "AGENTS.md"):
         agent_doc = (generated / name).read_text()
