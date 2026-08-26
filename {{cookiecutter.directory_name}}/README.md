@@ -15,13 +15,13 @@ sessions.
 Start here:
 {% if cookiecutter.docs_set == "full" %}
 1. Read this README for the repository overview.
-2. Read `docs/SETUP_and_TESTING_GUIDE.md` for local setup and validation.
-3. Read `docs/engineering-logs.md` before debugging or changing behavior.
+2. Read `docs/SETUP_AND_TESTING_GUIDE.md` for local setup and validation.
+3. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
 4. Read the relevant human-written spec in `docs/feature-specs/` before
    implementing a feature, fix, or experiment change.
 {% else %}
 1. Read this README for the repository overview and setup (Getting Started).
-2. Read `docs/engineering-logs.md` before debugging or changing behavior.
+2. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
 3. Read the relevant human-written spec in `docs/feature-specs/` before
    implementing a feature or fix.
 {% endif %}
@@ -34,16 +34,16 @@ Documentation map:
 
 | Document | Purpose |
 |---|---|
-| `docs/engineering-logs.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
+| `docs/ENGINEERING_LOGS.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
 | `docs/feature-specs/` | Human-written feature, fix, task, and experiment specs. Agent additions use italics; reversals of human context use strikethrough. |
 | `docs/C4_ARCHITECTURE.md` | Production architecture diagrams and service/data-flow context. Mandatory for production services. |
 | `docs/API_DOCUMENTATION.md` | External integration contract. Mandatory for production services. |
 {%- if cookiecutter.docs_set == "full" %}
-| `docs/SETUP_and_TESTING_GUIDE.md` | Local setup, Docker, Kubernetes/Helm, smoke tests, regression tests, stress tests, and evaluation commands. |
-| `docs/Dataset.md` | Dataset names, versions, paths, generation steps, and curation rationale for experiment repos. |
-| `docs/Experiments.md` | Experiment plans, methods, phases, output paths, drawbacks, and open questions. |
+| `docs/SETUP_AND_TESTING_GUIDE.md` | Local setup, Docker, Kubernetes/Helm, smoke tests, regression tests, stress tests, and evaluation commands. |
+| `docs/DATASET.md` | Dataset names, versions, paths, generation steps, and curation rationale for experiment repos. |
+| `docs/EXPERIMENTS.md` | Experiment plans, methods, phases, output paths, drawbacks, and open questions. |
 | `docs/STATUS.md` | Live status of experiments and evaluation work. |
-| `docs/Evaluation_and_findings.md` | Evaluation settings, benchmarks, results, and qualitative/quantitative findings. |
+| `docs/EVALUATION_AND_FINDINGS.md` | Evaluation settings, benchmarks, results, and qualitative/quantitative findings. |
 {%- endif %}
 
 PR descriptions should point reviewers to the relevant docs. Review priority is

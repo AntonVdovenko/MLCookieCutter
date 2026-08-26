@@ -88,16 +88,16 @@ The template validates your inputs at generation time:
 Generated projects include a documentation workflow for human and agentic
 development:
 
-- `docs/engineering-logs.md` records timestamped implementation context and is
+- `docs/ENGINEERING_LOGS.md` records timestamped implementation context and is
   the first file agents should read during debugging.
 - `docs/feature-specs/` stores human-written specs for feature, fix, task, and
   experiment work. Agent additions use italics, and reversals of human context
   use strikethrough.
 - `docs/C4_ARCHITECTURE.md`, `docs/API_DOCUMENTATION.md`, and
-  `docs/SETUP_and_TESTING_GUIDE.md` cover production architecture, external
+  `docs/SETUP_AND_TESTING_GUIDE.md` cover production architecture, external
   contracts, setup, deployment, and validation.
-- `docs/Dataset.md`, `docs/Experiments.md`, `docs/STATUS.md`, and
-  `docs/Evaluation_and_findings.md` cover experiment and evaluation repos.
+- `docs/DATASET.md`, `docs/EXPERIMENTS.md`, `docs/STATUS.md`, and
+  `docs/EVALUATION_AND_FINDINGS.md` cover experiment and evaluation repos.
 - `CLAUDE.md` and `AGENTS.md` make the same rules visible to Claude Code, Codex,
   and other terminal agents.
 

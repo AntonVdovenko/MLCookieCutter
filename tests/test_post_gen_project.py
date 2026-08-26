@@ -12,7 +12,7 @@ class PostGenerationHookTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             docs_dir = Path(tmpdir) / "docs"
             docs_dir.mkdir()
-            log_path = docs_dir / "engineering-logs.md"
+            log_path = docs_dir / "ENGINEERING_LOGS.md"
             log_path.write_text("Generated at {GENERATION_DATE}\n")
 
             fixed_now = datetime.datetime(

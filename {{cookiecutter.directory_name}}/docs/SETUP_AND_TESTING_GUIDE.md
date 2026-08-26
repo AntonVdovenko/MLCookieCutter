@@ -34,7 +34,7 @@ uv run ruff format --check .
 |---|---|---|---|
 | `ENV` | No | `local` | Runtime environment label |
 
-Record environment-specific surprises in `docs/engineering-logs.md`, especially
+Record environment-specific surprises in `docs/ENGINEERING_LOGS.md`, especially
 dependency, CUDA, device, driver, Docker, Kubernetes, or Helm changes.
 
 ## Docker
@@ -62,7 +62,7 @@ For production services, document:
 - log and metrics locations.
 
 Keep deployment experiments and one-off Helm or values changes in
-`docs/engineering-logs.md`.
+`docs/ENGINEERING_LOGS.md`.
 
 ## Unit Tests
 
@@ -94,14 +94,14 @@ Record:
 
 For experiment and evaluation repos, link evaluation commands and results to:
 
-- `docs/Dataset.md`
-- `docs/Experiments.md`
+- `docs/DATASET.md`
+- `docs/EXPERIMENTS.md`
 - `docs/STATUS.md`
-- `docs/Evaluation_and_findings.md`
+- `docs/EVALUATION_AND_FINDINGS.md`
 
 ## Debugging Checklist
 
-1. Read `docs/engineering-logs.md` for known setup/runtime issues.
+1. Read `docs/ENGINEERING_LOGS.md` for known setup/runtime issues.
 2. Read the relevant feature spec in `docs/feature-specs/`.
 3. Reproduce with the smallest command or fixture.
-4. Record the fix, validation, and remaining risks in `docs/engineering-logs.md`.
+4. Record the fix, validation, and remaining risks in `docs/ENGINEERING_LOGS.md`.

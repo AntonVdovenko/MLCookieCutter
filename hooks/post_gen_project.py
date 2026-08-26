@@ -4,11 +4,11 @@ import datetime
 from pathlib import Path
 
 FULL_DOCS_ONLY = (
-    Path("docs") / "SETUP_and_TESTING_GUIDE.md",
-    Path("docs") / "Dataset.md",
-    Path("docs") / "Experiments.md",
+    Path("docs") / "SETUP_AND_TESTING_GUIDE.md",
+    Path("docs") / "DATASET.md",
+    Path("docs") / "EXPERIMENTS.md",
     Path("docs") / "STATUS.md",
-    Path("docs") / "Evaluation_and_findings.md",
+    Path("docs") / "EVALUATION_AND_FINDINGS.md",
 )
 
 
@@ -29,7 +29,7 @@ def replace_year_in_license():
 def replace_generation_date_placeholders():
     """Replace {GENERATION_DATE} placeholders in generated documentation."""
     generation_date = current_timestamp()
-    for path in (Path("docs") / "engineering-logs.md",):
+    for path in (Path("docs") / "ENGINEERING_LOGS.md",):
         if path.exists():
             content = path.read_text()
             content = content.replace("{GENERATION_DATE}", generation_date)
@@ -39,7 +39,7 @@ def replace_generation_date_placeholders():
 def remove_full_docs_if_minimal(docs_set="{{ cookiecutter.docs_set }}"):
     """Keep only the minimal docs profile when the project was generated with docs_set=minimal.
 
-    Minimal keeps README.md, docs/engineering-logs.md, docs/feature-specs/,
+    Minimal keeps README.md, docs/ENGINEERING_LOGS.md, docs/feature-specs/,
     docs/C4_ARCHITECTURE.md, and docs/API_DOCUMENTATION.md; full adds the
     setup/testing guide and the experiment docs.
     """

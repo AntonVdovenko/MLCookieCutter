@@ -6,7 +6,7 @@ service.
 
 If this repository is experiment-only and exposes no public API, state that
 clearly here and point readers to `README.md`,
-`docs/SETUP_and_TESTING_GUIDE.md`, and the experiment docs.
+`docs/SETUP_AND_TESTING_GUIDE.md`, and the experiment docs.
 
 ## Integration Status
 
@@ -75,5 +75,5 @@ Document each externally callable route with:
 - Required environment variables and secrets are documented.
 - Caller-owned identifiers are clearly named.
 - Response fields used by external teams are stable or versioned.
-- Smoke-test commands are linked from `docs/SETUP_and_TESTING_GUIDE.md`.
-- Contract changes are reflected in `docs/engineering-logs.md`.
+- Smoke-test commands are linked from `docs/SETUP_AND_TESTING_GUIDE.md`.
+- Contract changes are reflected in `docs/ENGINEERING_LOGS.md`.

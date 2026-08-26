@@ -88,4 +88,4 @@ sequenceDiagram
 - Diagrams match the current code and deployment topology.
 - External dependencies and ownership boundaries are named.
 - Data, model, and artifact paths are documented.
-- Architecture changes are reflected in `docs/engineering-logs.md`.
+- Architecture changes are reflected in `docs/ENGINEERING_LOGS.md`.

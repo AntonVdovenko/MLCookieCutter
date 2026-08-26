@@ -142,15 +142,15 @@ def test_ci_workflow_excluded_when_disabled(tmp_path: Path) -> None:
 
 
 FULL_DOCS_ONLY_NAMES = [
-    "SETUP_and_TESTING_GUIDE.md",
-    "Dataset.md",
-    "Experiments.md",
+    "SETUP_AND_TESTING_GUIDE.md",
+    "DATASET.md",
+    "EXPERIMENTS.md",
     "STATUS.md",
-    "Evaluation_and_findings.md",
+    "EVALUATION_AND_FINDINGS.md",
 ]
 
 MINIMAL_DOCS_NAMES = [
-    "engineering-logs.md",
+    "ENGINEERING_LOGS.md",
     "C4_ARCHITECTURE.md",
     "API_DOCUMENTATION.md",
 ]
@@ -174,7 +174,7 @@ def test_minimal_docs_set_is_default(tmp_path: Path) -> None:
         assert "docs/feature-specs" in agent_doc
         assert "SETUP_and_TESTING_GUIDE" not in agent_doc
         assert "## Experiment Repository Docs" not in agent_doc
-        assert "docs/engineering-logs.md" in agent_doc
+        assert "docs/ENGINEERING_LOGS.md" in agent_doc
 
 
 def test_full_docs_set_keeps_all_docs(tmp_path: Path) -> None:
