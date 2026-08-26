@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync --frozen --group dev
-          uv pip install python-semantic-release
+          uv pip install python-semantic-release "gitpython<3.1.45"
 
       - name: Python Semantic Release
         id: release
@@ -48,7 +48,11 @@ jobs:
           GH_TOKEN: {% raw %}${{ secrets.GITHUB_TOKEN }}{% endraw %}
         run: |
           VERSION=$(uv run semantic-release version --print)
-          if [ -n "$VERSION" ]; then
+          LAST=$(uv run semantic-release version --print-last-released)
+          # --print echoes the CURRENT version when no release is due, so an
+          # emptiness check alone always enters the release path and then
+          # amends/force-tags already-pushed refs. Release only on a real bump.
+          if [ -n "$VERSION" ] && [ "$VERSION" != "$LAST" ]; then
             echo "released=true" >> $GITHUB_OUTPUT
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             uv run semantic-release version --no-push
