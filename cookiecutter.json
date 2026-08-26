@@ -11,5 +11,6 @@
     "keywords": "",
     "include_dvc": "false",
     "include_ci": "true",
+    "docs_set": ["minimal", "full"],
     "python_test_versions": "3.10, 3.11, 3.12, 3.13, 3.14"
 }

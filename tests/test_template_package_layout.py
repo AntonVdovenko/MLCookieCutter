@@ -139,3 +139,56 @@ def test_ci_workflow_excluded_when_disabled(tmp_path: Path) -> None:
     assert "actions/workflows/ci.yml/badge.svg" not in readme
     assert "### `ci.yml`" not in readme
     assert "### `release.yml`" in readme
+
+
+FULL_DOCS_ONLY_NAMES = [
+    "SETUP_and_TESTING_GUIDE.md",
+    "Dataset.md",
+    "Experiments.md",
+    "STATUS.md",
+    "Evaluation_and_findings.md",
+]
+
+MINIMAL_DOCS_NAMES = [
+    "engineering-logs.md",
+    "C4_ARCHITECTURE.md",
+    "API_DOCUMENTATION.md",
+]
+
+
+def test_minimal_docs_set_is_default(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+    docs = generated / "docs"
+
+    for name in MINIMAL_DOCS_NAMES:
+        assert (docs / name).is_file()
+    for name in FULL_DOCS_ONLY_NAMES:
+        assert not (docs / name).exists()
+    assert not (docs / "feature-specs").exists()
+
+    readme = (generated / "README.md").read_text()
+    assert "SETUP_and_TESTING_GUIDE" not in readme
+    assert "feature-specs" not in readme
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        agent_doc = (generated / name).read_text()
+        assert "feature-specs" not in agent_doc
+        assert "SETUP_and_TESTING_GUIDE" not in agent_doc
+        assert "## Experiment Repository Docs" not in agent_doc
+        assert "docs/engineering-logs.md" in agent_doc
+
+
+def test_full_docs_set_keeps_all_docs(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, docs_set="full")
+    docs = generated / "docs"
+
+    for name in MINIMAL_DOCS_NAMES + FULL_DOCS_ONLY_NAMES:
+        assert (docs / name).is_file()
+    assert (docs / "feature-specs" / "README.md").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "SETUP_and_TESTING_GUIDE" in readme
+    assert "feature-specs" in readme
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        agent_doc = (generated / name).read_text()
+        assert "docs/feature-specs" in agent_doc
+        assert "## Experiment Repository Docs" in agent_doc

@@ -1,7 +1,16 @@
 """Post-generation hook: fills dynamic placeholders in generated projects."""
 
 import datetime
+import shutil
 from pathlib import Path
+
+FULL_DOCS_ONLY = (
+    Path("docs") / "SETUP_and_TESTING_GUIDE.md",
+    Path("docs") / "Dataset.md",
+    Path("docs") / "Experiments.md",
+    Path("docs") / "STATUS.md",
+    Path("docs") / "Evaluation_and_findings.md",
+)
 
 
 def current_timestamp():
@@ -28,6 +37,21 @@ def replace_generation_date_placeholders():
             path.write_text(content)
 
 
+def remove_full_docs_if_minimal(docs_set="{{ cookiecutter.docs_set }}"):
+    """Keep only the minimal docs profile when the project was generated with docs_set=minimal.
+
+    Minimal keeps README.md, docs/engineering-logs.md, docs/C4_ARCHITECTURE.md, and
+    docs/API_DOCUMENTATION.md; full adds the feature-specs folder, the setup/testing
+    guide, and the experiment docs.
+    """
+    if docs_set == "full":
+        return
+    for path in FULL_DOCS_ONLY:
+        if path.exists():
+            path.unlink()
+    shutil.rmtree(Path("docs") / "feature-specs", ignore_errors=True)
+
+
 def remove_ci_workflow_if_disabled(include_ci="{{ cookiecutter.include_ci }}"):
     """Delete the PR CI workflow when the project was generated with include_ci=false.
 
@@ -45,3 +69,4 @@ if __name__ == "__main__":
     replace_year_in_license()
     replace_generation_date_placeholders()
     remove_ci_workflow_if_disabled()
+    remove_full_docs_if_minimal()

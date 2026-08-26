@@ -9,6 +9,8 @@ workflow rules change.
 Before implementing a feature, bug fix, experiment change, deployment change,
 or dependency/environment update:
 
+{%- if cookiecutter.docs_set == "full" %}
+
 1. Read `docs/engineering-logs.md`.
 2. Read the relevant files in `docs/feature-specs/`.
 3. Read the documentation file that matches the work area:
@@ -22,6 +24,16 @@ or dependency/environment update:
 If the current request conflicts with an existing feature spec, engineering log,
 or documented production contract, stop and ask the developer before changing
 behavior.
+{%- else %}
+
+1. Read `docs/engineering-logs.md`.
+2. Read the documentation file that matches the work area:
+   - architecture: `docs/C4_ARCHITECTURE.md`
+   - external integration/API behavior: `docs/API_DOCUMENTATION.md`
+
+If the current request conflicts with an engineering-log entry or a documented
+production contract, stop and ask the developer before changing behavior.
+{%- endif %}
 
 ## Documentation Standards
 
@@ -38,6 +50,8 @@ are part of the development workflow, not optional afterthoughts.
   driver, deployment, or experiment oddities.
 - Keep newest entries at the top.
 
+{%- if cookiecutter.docs_set == "full" %}
+
 ### `docs/feature-specs/`
 
 - Stores human-written prompts, context, constraints, and designs for each
@@ -50,6 +64,7 @@ are part of the development workflow, not optional afterthoughts.
   ~~strikethrough~~ rather than silent deletion.
 - Do not overwrite human design intent. If requirements are missing or unclear,
   ask the developer to update the spec or clearly mark agent-added amendments.
+{%- endif %}
 
 ### `docs/C4_ARCHITECTURE.md`
 
@@ -66,6 +81,8 @@ are part of the development workflow, not optional afterthoughts.
 - For experiment-only codebases with no public API, state that explicitly and
   link to the README, setup guide, and experiment docs.
 
+{%- if cookiecutter.docs_set == "full" %}
+
 ### `docs/SETUP_and_TESTING_GUIDE.md`
 
 - Defines local setup, environment variables, Docker usage, Kubernetes or Helm
@@ -73,12 +90,14 @@ are part of the development workflow, not optional afterthoughts.
   stress tests, and evaluation commands.
 - It can stay as one file or be split into separate local, Docker, Kubernetes,
   and CLI guides as the project grows.
+{%- endif %}
 
 ### `README.md`
 
 - Explains what the repository does and how to navigate the documentation.
 - Lists related repositories when production, training, evaluation, or data
   repos are split.
+{%- if cookiecutter.docs_set == "full" %}
 - For experiment and evaluation repos, README changes should follow the same
   human-vs-agent edit conventions as feature specs.
 
@@ -95,6 +114,7 @@ Experiment and evaluation codebases must also maintain:
   pending, and brief findings.
 - `docs/Evaluation_and_findings.md`: evaluation settings, benchmarks,
   processes, datasets, quantitative and qualitative findings, and result paths.
+{%- endif %}
 
 ## PR Review Expectations
 

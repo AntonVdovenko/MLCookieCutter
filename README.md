@@ -42,6 +42,7 @@ You will be prompted for:
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
 | `include_ci` | Include the PR CI workflow (`ci.yml`: ruff lint + pytest matrix); `release.yml` semantic versioning is always included | `true` |
+| `docs_set` | Docs profile: `minimal` (README, engineering-logs, C4, API docs) or `full` (adds feature-specs, setup/testing guide, and the experiment docs) | `minimal` |
 | `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12, 3.13, 3.14` |
 
 Then initialize your project:
