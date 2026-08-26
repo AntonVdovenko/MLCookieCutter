@@ -27,12 +27,14 @@ behavior.
 {%- else %}
 
 1. Read `docs/engineering-logs.md`.
-2. Read the documentation file that matches the work area:
+2. Read the relevant files in `docs/feature-specs/`.
+3. Read the documentation file that matches the work area:
    - architecture: `docs/C4_ARCHITECTURE.md`
    - external integration/API behavior: `docs/API_DOCUMENTATION.md`
 
-If the current request conflicts with an engineering-log entry or a documented
-production contract, stop and ask the developer before changing behavior.
+If the current request conflicts with an existing feature spec, engineering log,
+or documented production contract, stop and ask the developer before changing
+behavior.
 {%- endif %}
 
 ## Documentation Standards
@@ -50,8 +52,6 @@ are part of the development workflow, not optional afterthoughts.
   driver, deployment, or experiment oddities.
 - Keep newest entries at the top.
 
-{%- if cookiecutter.docs_set == "full" %}
-
 ### `docs/feature-specs/`
 
 - Stores human-written prompts, context, constraints, and designs for each
@@ -64,7 +64,6 @@ are part of the development workflow, not optional afterthoughts.
   ~~strikethrough~~ rather than silent deletion.
 - Do not overwrite human design intent. If requirements are missing or unclear,
   ask the developer to update the spec or clearly mark agent-added amendments.
-{%- endif %}
 
 ### `docs/C4_ARCHITECTURE.md`
 

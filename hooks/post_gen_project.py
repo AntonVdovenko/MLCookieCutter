@@ -1,7 +1,6 @@
 """Post-generation hook: fills dynamic placeholders in generated projects."""
 
 import datetime
-import shutil
 from pathlib import Path
 
 FULL_DOCS_ONLY = (
@@ -40,16 +39,15 @@ def replace_generation_date_placeholders():
 def remove_full_docs_if_minimal(docs_set="{{ cookiecutter.docs_set }}"):
     """Keep only the minimal docs profile when the project was generated with docs_set=minimal.
 
-    Minimal keeps README.md, docs/engineering-logs.md, docs/C4_ARCHITECTURE.md, and
-    docs/API_DOCUMENTATION.md; full adds the feature-specs folder, the setup/testing
-    guide, and the experiment docs.
+    Minimal keeps README.md, docs/engineering-logs.md, docs/feature-specs/,
+    docs/C4_ARCHITECTURE.md, and docs/API_DOCUMENTATION.md; full adds the
+    setup/testing guide and the experiment docs.
     """
     if docs_set == "full":
         return
     for path in FULL_DOCS_ONLY:
         if path.exists():
             path.unlink()
-    shutil.rmtree(Path("docs") / "feature-specs", ignore_errors=True)
 
 
 def remove_ci_workflow_if_disabled(include_ci="{{ cookiecutter.include_ci }}"):
