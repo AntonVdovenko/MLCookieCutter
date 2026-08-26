@@ -28,6 +28,20 @@ def replace_generation_date_placeholders():
             path.write_text(content)
 
 
+def remove_ci_workflow_if_disabled(include_ci="{{ cookiecutter.include_ci }}"):
+    """Delete the PR CI workflow when the project was generated with include_ci=false.
+
+    release.yml (semantic-release version bumping) is always kept; only the
+    lint/test pipeline on pull requests is optional.
+    """
+    if include_ci == "true":
+        return
+    ci_path = Path(".github") / "workflows" / "ci.yml"
+    if ci_path.exists():
+        ci_path.unlink()
+
+
 if __name__ == "__main__":
     replace_year_in_license()
     replace_generation_date_placeholders()
+    remove_ci_workflow_if_disabled()

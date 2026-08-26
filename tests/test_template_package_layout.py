@@ -115,3 +115,27 @@ def test_template_trims_python_test_matrix_entries(tmp_path: Path) -> None:
 def test_template_rejects_invalid_package_name(tmp_path: Path) -> None:
     with pytest.raises(FailedHookException):
         render_template(tmp_path, package_name="invalid-package-name")
+
+
+def test_ci_workflow_included_by_default(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    assert (generated / ".github" / "workflows" / "ci.yml").is_file()
+    assert (generated / ".github" / "workflows" / "release.yml").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "actions/workflows/ci.yml/badge.svg" in readme
+    assert "### `ci.yml`" in readme
+
+
+def test_ci_workflow_excluded_when_disabled(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, include_ci="false")
+
+    assert not (generated / ".github" / "workflows" / "ci.yml").exists()
+    # Semantic-release versioning is always kept — include_ci only gates the PR pipeline.
+    assert (generated / ".github" / "workflows" / "release.yml").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "actions/workflows/ci.yml/badge.svg" not in readme
+    assert "### `ci.yml`" not in readme
+    assert "### `release.yml`" in readme

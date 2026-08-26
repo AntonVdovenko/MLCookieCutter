@@ -41,6 +41,7 @@ You will be prompted for:
 | `license` | License type | `MIT` (also: Apache-2.0, GPL-3.0, BSD-3-Clause, Proprietary) |
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
+| `include_ci` | Include the PR CI workflow (`ci.yml`: ruff lint + pytest matrix); `release.yml` semantic versioning is always included | `true` |
 | `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12, 3.13, 3.14` |
 
 Then initialize your project:

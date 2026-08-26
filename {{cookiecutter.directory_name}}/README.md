@@ -1,8 +1,9 @@
 # {{ cookiecutter.project_name }}
 
 {{ cookiecutter.project_description }}
-
+{% if cookiecutter.include_ci == "true" %}
 ![CI](https://github.com/USERNAME/{{ cookiecutter.project_name }}/actions/workflows/ci.yml/badge.svg)
+{%- endif %}
 ![Python](https://img.shields.io/badge/python->%3D{{ cookiecutter.python_version }}-blue)
 
 ## Documentation and Agentic Development
@@ -71,10 +72,10 @@ Data Version Control. Tracks large files and datasets outside git with support f
 {%- endif %}
 
 ## GitHub Actions
-
+{% if cookiecutter.include_ci == "true" %}
 ### `ci.yml`
 Triggered on pull requests to `{{ cookiecutter.default_branch }}`. Runs ruff lint and format checks, then runs pytest across the Python version matrix ({{ cookiecutter.python_test_versions }}).
-
+{% endif %}
 ### `release.yml`
 Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-release to determine the next version from commit messages, updates `CHANGELOG.md`, creates a git tag, builds the package, and publishes a GitHub Release.
 
