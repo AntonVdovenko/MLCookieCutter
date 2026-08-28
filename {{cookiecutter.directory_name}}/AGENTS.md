@@ -9,26 +9,40 @@ workflow rules change.
 Before implementing a feature, bug fix, experiment change, deployment change,
 or dependency/environment update:
 
-1. Read `docs/engineering-logs.md`.
+{%- if cookiecutter.docs_set == "full" %}
+
+1. Read `docs/ENGINEERING_LOGS.md`.
 2. Read the relevant files in `docs/feature-specs/`.
 3. Read the documentation file that matches the work area:
    - production architecture: `docs/C4_ARCHITECTURE.md`
    - external integration/API behavior: `docs/API_DOCUMENTATION.md`
-   - setup, testing, Docker, Kubernetes, smoke tests: `docs/SETUP_and_TESTING_GUIDE.md`
-   - experiment datasets/plans/results: `docs/Dataset.md`,
-     `docs/Experiments.md`, `docs/STATUS.md`,
-     `docs/Evaluation_and_findings.md`
+   - setup, testing, Docker, Kubernetes, smoke tests: `docs/SETUP_AND_TESTING_GUIDE.md`
+   - experiment datasets/plans/results: `docs/DATASET.md`,
+     `docs/EXPERIMENTS.md`, `docs/STATUS.md`,
+     `docs/EVALUATION_AND_FINDINGS.md`
 
 If the current request conflicts with an existing feature spec, engineering log,
 or documented production contract, stop and ask the developer before changing
 behavior.
+{%- else %}
+
+1. Read `docs/ENGINEERING_LOGS.md`.
+2. Read the relevant files in `docs/feature-specs/`.
+3. Read the documentation file that matches the work area:
+   - architecture: `docs/C4_ARCHITECTURE.md`
+   - external integration/API behavior: `docs/API_DOCUMENTATION.md`
+
+If the current request conflicts with an existing feature spec, engineering log,
+or documented production contract, stop and ask the developer before changing
+behavior.
+{%- endif %}
 
 ## Documentation Standards
 
 Every project generated from this template has a `docs` folder. These documents
 are part of the development workflow, not optional afterthoughts.
 
-### `docs/engineering-logs.md`
+### `docs/ENGINEERING_LOGS.md`
 
 - Maintains timestamped, implementation-specific context.
 - Agents must update it when they make code, config, environment, deployment,
@@ -66,19 +80,23 @@ are part of the development workflow, not optional afterthoughts.
 - For experiment-only codebases with no public API, state that explicitly and
   link to the README, setup guide, and experiment docs.
 
-### `docs/SETUP_and_TESTING_GUIDE.md`
+{%- if cookiecutter.docs_set == "full" %}
+
+### `docs/SETUP_AND_TESTING_GUIDE.md`
 
 - Defines local setup, environment variables, Docker usage, Kubernetes or Helm
   deployment flow, smoke tests, rollback notes, unit tests, regression tests,
   stress tests, and evaluation commands.
 - It can stay as one file or be split into separate local, Docker, Kubernetes,
   and CLI guides as the project grows.
+{%- endif %}
 
 ### `README.md`
 
 - Explains what the repository does and how to navigate the documentation.
 - Lists related repositories when production, training, evaluation, or data
   repos are split.
+{%- if cookiecutter.docs_set == "full" %}
 - For experiment and evaluation repos, README changes should follow the same
   human-vs-agent edit conventions as feature specs.
 
@@ -86,15 +104,16 @@ are part of the development workflow, not optional afterthoughts.
 
 Experiment and evaluation codebases must also maintain:
 
-- `docs/Dataset.md`: dataset names, generation/curation methodology,
+- `docs/DATASET.md`: dataset names, generation/curation methodology,
   replication steps, rationale, and output paths.
-- `docs/Experiments.md`: methods, goals, phases, datasets, plans, open
+- `docs/EXPERIMENTS.md`: methods, goals, phases, datasets, plans, open
   questions, remarks, drawbacks, and output paths.
 - `docs/STATUS.md`: live experiment status such as not started, dataset,
   experiment dev, experiment running, eval running, benched, failed, skipped,
   pending, and brief findings.
-- `docs/Evaluation_and_findings.md`: evaluation settings, benchmarks,
+- `docs/EVALUATION_AND_FINDINGS.md`: evaluation settings, benchmarks,
   processes, datasets, quantitative and qualitative findings, and result paths.
+{%- endif %}
 
 ## PR Review Expectations
 
@@ -109,7 +128,7 @@ Experiment and evaluation codebases must also maintain:
 ## Implementation Logging
 
 When you complete meaningful implementation work, add an entry to
-`docs/engineering-logs.md` with:
+`docs/ENGINEERING_LOGS.md` with:
 
 - timestamp and short title;
 - author or agent name;

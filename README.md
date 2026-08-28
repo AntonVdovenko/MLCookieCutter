@@ -41,6 +41,8 @@ You will be prompted for:
 | `license` | License type | `MIT` (also: Apache-2.0, GPL-3.0, BSD-3-Clause, Proprietary) |
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
+| `include_ci` | Include the PR CI workflow (`ci.yml`: ruff lint + pytest matrix); `release.yml` semantic versioning is always included | `true` |
+| `docs_set` | Docs profile: `minimal` (README, engineering-logs, feature-specs, C4, API docs) or `full` (adds the setup/testing guide and the experiment docs) | `minimal` |
 | `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12, 3.13, 3.14` |
 
 Then initialize your project:
@@ -86,16 +88,16 @@ The template validates your inputs at generation time:
 Generated projects include a documentation workflow for human and agentic
 development:
 
-- `docs/engineering-logs.md` records timestamped implementation context and is
+- `docs/ENGINEERING_LOGS.md` records timestamped implementation context and is
   the first file agents should read during debugging.
 - `docs/feature-specs/` stores human-written specs for feature, fix, task, and
   experiment work. Agent additions use italics, and reversals of human context
   use strikethrough.
 - `docs/C4_ARCHITECTURE.md`, `docs/API_DOCUMENTATION.md`, and
-  `docs/SETUP_and_TESTING_GUIDE.md` cover production architecture, external
+  `docs/SETUP_AND_TESTING_GUIDE.md` cover production architecture, external
   contracts, setup, deployment, and validation.
-- `docs/Dataset.md`, `docs/Experiments.md`, `docs/STATUS.md`, and
-  `docs/Evaluation_and_findings.md` cover experiment and evaluation repos.
+- `docs/DATASET.md`, `docs/EXPERIMENTS.md`, `docs/STATUS.md`, and
+  `docs/EVALUATION_AND_FINDINGS.md` cover experiment and evaluation repos.
 - `CLAUDE.md` and `AGENTS.md` make the same rules visible to Claude Code, Codex,
   and other terminal agents.
 

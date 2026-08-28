@@ -1,8 +1,9 @@
 # {{ cookiecutter.project_name }}
 
 {{ cookiecutter.project_description }}
-
+{% if cookiecutter.include_ci == "true" %}
 ![CI](https://github.com/USERNAME/{{ cookiecutter.project_name }}/actions/workflows/ci.yml/badge.svg)
+{%- endif %}
 ![Python](https://img.shields.io/badge/python->%3D{{ cookiecutter.python_version }}-blue)
 
 ## Documentation and Agentic Development
@@ -12,13 +13,18 @@ implementation context across features, experiments, deployments, and debugging
 sessions.
 
 Start here:
-
+{% if cookiecutter.docs_set == "full" %}
 1. Read this README for the repository overview.
-2. Read `docs/SETUP_and_TESTING_GUIDE.md` for local setup and validation.
-3. Read `docs/engineering-logs.md` before debugging or changing behavior.
+2. Read `docs/SETUP_AND_TESTING_GUIDE.md` for local setup and validation.
+3. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
 4. Read the relevant human-written spec in `docs/feature-specs/` before
    implementing a feature, fix, or experiment change.
-
+{% else %}
+1. Read this README for the repository overview and setup (Getting Started).
+2. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
+3. Read the relevant human-written spec in `docs/feature-specs/` before
+   implementing a feature or fix.
+{% endif %}
 Agent instructions:
 
 - Claude Code: `CLAUDE.md`
@@ -28,15 +34,17 @@ Documentation map:
 
 | Document | Purpose |
 |---|---|
-| `docs/engineering-logs.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
+| `docs/ENGINEERING_LOGS.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
 | `docs/feature-specs/` | Human-written feature, fix, task, and experiment specs. Agent additions use italics; reversals of human context use strikethrough. |
 | `docs/C4_ARCHITECTURE.md` | Production architecture diagrams and service/data-flow context. Mandatory for production services. |
 | `docs/API_DOCUMENTATION.md` | External integration contract. Mandatory for production services. |
-| `docs/SETUP_and_TESTING_GUIDE.md` | Local setup, Docker, Kubernetes/Helm, smoke tests, regression tests, stress tests, and evaluation commands. |
-| `docs/Dataset.md` | Dataset names, versions, paths, generation steps, and curation rationale for experiment repos. |
-| `docs/Experiments.md` | Experiment plans, methods, phases, output paths, drawbacks, and open questions. |
+{%- if cookiecutter.docs_set == "full" %}
+| `docs/SETUP_AND_TESTING_GUIDE.md` | Local setup, Docker, Kubernetes/Helm, smoke tests, regression tests, stress tests, and evaluation commands. |
+| `docs/DATASET.md` | Dataset names, versions, paths, generation steps, and curation rationale for experiment repos. |
+| `docs/EXPERIMENTS.md` | Experiment plans, methods, phases, output paths, drawbacks, and open questions. |
 | `docs/STATUS.md` | Live status of experiments and evaluation work. |
-| `docs/Evaluation_and_findings.md` | Evaluation settings, benchmarks, results, and qualitative/quantitative findings. |
+| `docs/EVALUATION_AND_FINDINGS.md` | Evaluation settings, benchmarks, results, and qualitative/quantitative findings. |
+{%- endif %}
 
 PR descriptions should point reviewers to the relevant docs. Review priority is
 human-authored specs and context first, then agent-authored or agent-updated
@@ -71,10 +79,10 @@ Data Version Control. Tracks large files and datasets outside git with support f
 {%- endif %}
 
 ## GitHub Actions
-
+{% if cookiecutter.include_ci == "true" %}
 ### `ci.yml`
 Triggered on pull requests to `{{ cookiecutter.default_branch }}`. Runs ruff lint and format checks, then runs pytest across the Python version matrix ({{ cookiecutter.python_test_versions }}).
-
+{% endif %}
 ### `release.yml`
 Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-release to determine the next version from commit messages, updates `CHANGELOG.md`, creates a git tag, builds the package, and publishes a GitHub Release.
 

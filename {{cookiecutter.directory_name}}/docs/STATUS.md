@@ -24,5 +24,5 @@ Suggested statuses:
 
 - Keep notes brief here.
 - Put detailed rationale, commands, paths, and findings in
-  `docs/Experiments.md`, `docs/Evaluation_and_findings.md`, and
-  `docs/engineering-logs.md`.
+  `docs/EXPERIMENTS.md`, `docs/EVALUATION_AND_FINDINGS.md`, and
+  `docs/ENGINEERING_LOGS.md`.

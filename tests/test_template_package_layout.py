@@ -115,3 +115,80 @@ def test_template_trims_python_test_matrix_entries(tmp_path: Path) -> None:
 def test_template_rejects_invalid_package_name(tmp_path: Path) -> None:
     with pytest.raises(FailedHookException):
         render_template(tmp_path, package_name="invalid-package-name")
+
+
+def test_ci_workflow_included_by_default(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    assert (generated / ".github" / "workflows" / "ci.yml").is_file()
+    assert (generated / ".github" / "workflows" / "release.yml").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "actions/workflows/ci.yml/badge.svg" in readme
+    assert "### `ci.yml`" in readme
+
+
+def test_ci_workflow_excluded_when_disabled(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, include_ci="false")
+
+    assert not (generated / ".github" / "workflows" / "ci.yml").exists()
+    # Semantic-release versioning is always kept — include_ci only gates the PR pipeline.
+    assert (generated / ".github" / "workflows" / "release.yml").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "actions/workflows/ci.yml/badge.svg" not in readme
+    assert "### `ci.yml`" not in readme
+    assert "### `release.yml`" in readme
+
+
+FULL_DOCS_ONLY_NAMES = [
+    "SETUP_AND_TESTING_GUIDE.md",
+    "DATASET.md",
+    "EXPERIMENTS.md",
+    "STATUS.md",
+    "EVALUATION_AND_FINDINGS.md",
+]
+
+MINIMAL_DOCS_NAMES = [
+    "ENGINEERING_LOGS.md",
+    "C4_ARCHITECTURE.md",
+    "API_DOCUMENTATION.md",
+]
+
+
+def test_minimal_docs_set_is_default(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+    docs = generated / "docs"
+
+    for name in MINIMAL_DOCS_NAMES:
+        assert (docs / name).is_file()
+    for name in FULL_DOCS_ONLY_NAMES:
+        assert not (docs / name).exists()
+    assert (docs / "feature-specs" / "README.md").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "SETUP_AND_TESTING_GUIDE" not in readme
+    assert "feature-specs" in readme
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        agent_doc = (generated / name).read_text()
+        assert "docs/feature-specs" in agent_doc
+        assert "SETUP_AND_TESTING_GUIDE" not in agent_doc
+        assert "## Experiment Repository Docs" not in agent_doc
+        assert "docs/ENGINEERING_LOGS.md" in agent_doc
+
+
+def test_full_docs_set_keeps_all_docs(tmp_path: Path) -> None:
+    generated = render_template(tmp_path, docs_set="full")
+    docs = generated / "docs"
+
+    for name in MINIMAL_DOCS_NAMES + FULL_DOCS_ONLY_NAMES:
+        assert (docs / name).is_file()
+    assert (docs / "feature-specs" / "README.md").is_file()
+
+    readme = (generated / "README.md").read_text()
+    assert "SETUP_AND_TESTING_GUIDE" in readme
+    assert "feature-specs" in readme
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        agent_doc = (generated / name).read_text()
+        assert "docs/feature-specs" in agent_doc
+        assert "## Experiment Repository Docs" in agent_doc

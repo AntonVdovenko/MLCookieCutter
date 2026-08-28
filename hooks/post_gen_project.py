@@ -3,6 +3,14 @@
 import datetime
 from pathlib import Path
 
+FULL_DOCS_ONLY = (
+    Path("docs") / "SETUP_AND_TESTING_GUIDE.md",
+    Path("docs") / "DATASET.md",
+    Path("docs") / "EXPERIMENTS.md",
+    Path("docs") / "STATUS.md",
+    Path("docs") / "EVALUATION_AND_FINDINGS.md",
+)
+
 
 def current_timestamp():
     """Return the local ISO timestamp used in generated documentation."""
@@ -21,13 +29,42 @@ def replace_year_in_license():
 def replace_generation_date_placeholders():
     """Replace {GENERATION_DATE} placeholders in generated documentation."""
     generation_date = current_timestamp()
-    for path in (Path("docs") / "engineering-logs.md",):
+    for path in (Path("docs") / "ENGINEERING_LOGS.md",):
         if path.exists():
             content = path.read_text()
             content = content.replace("{GENERATION_DATE}", generation_date)
             path.write_text(content)
 
 
+def remove_full_docs_if_minimal(docs_set="{{ cookiecutter.docs_set }}"):
+    """Keep only the minimal docs profile when the project was generated with docs_set=minimal.
+
+    Minimal keeps README.md, docs/ENGINEERING_LOGS.md, docs/feature-specs/,
+    docs/C4_ARCHITECTURE.md, and docs/API_DOCUMENTATION.md; full adds the
+    setup/testing guide and the experiment docs.
+    """
+    if docs_set == "full":
+        return
+    for path in FULL_DOCS_ONLY:
+        if path.exists():
+            path.unlink()
+
+
+def remove_ci_workflow_if_disabled(include_ci="{{ cookiecutter.include_ci }}"):
+    """Delete the PR CI workflow when the project was generated with include_ci=false.
+
+    release.yml (semantic-release version bumping) is always kept; only the
+    lint/test pipeline on pull requests is optional.
+    """
+    if include_ci == "true":
+        return
+    ci_path = Path(".github") / "workflows" / "ci.yml"
+    if ci_path.exists():
+        ci_path.unlink()
+
+
 if __name__ == "__main__":
     replace_year_in_license()
     replace_generation_date_placeholders()
+    remove_ci_workflow_if_disabled()
+    remove_full_docs_if_minimal()
