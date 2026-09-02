@@ -318,3 +318,15 @@ def test_agent_planning_artifacts_stay_local(tmp_path: Path) -> None:
         prose = " ".join((generated / name).read_text().split())
         assert "`docs/superpowers/`" in prose
         assert "never be committed or force-added" in prose
+
+
+@pytest.mark.parametrize("license_name", ["MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause", "Proprietary"])
+def test_generated_files_end_with_a_newline(tmp_path: Path, license_name: str) -> None:
+    generated = render_template(tmp_path, license=license_name)
+
+    # pre-commit's end-of-file-fixer rewrites files without a final newline,
+    # which made the first `pre-commit run --all-files` of a fresh project fail.
+    for name in ("Makefile", "LICENSE"):
+        content = (generated / name).read_text()
+        assert content.endswith("\n"), f"{name} lacks a final newline"
+        assert not content.endswith("\n\n"), f"{name} has extra blank lines at EOF"
