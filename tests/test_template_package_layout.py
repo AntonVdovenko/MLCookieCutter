@@ -1,4 +1,5 @@
 import json
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -58,10 +59,6 @@ def test_template_creates_importable_package_layout(tmp_path: Path) -> None:
     pyproject = (generated / "pyproject.toml").read_text()
     assert 'packages = ["src/high_view_power_interview"]' in pyproject
     assert 'known-first-party = ["high_view_power_interview"]' in pyproject
-    assert (
-        'version_variables = ["src/high_view_power_interview/__init__.py:__version__"]'
-        in pyproject
-    )
 
     smoke_test = (generated / "tests" / "test_package.py").read_text()
     assert "import high_view_power_interview" in smoke_test
@@ -192,3 +189,59 @@ def test_full_docs_set_keeps_all_docs(tmp_path: Path) -> None:
         agent_doc = (generated / name).read_text()
         assert "docs/feature-specs" in agent_doc
         assert "## Experiment Repository Docs" in agent_doc
+
+
+def test_release_workflow_creates_the_tag_once_and_never_moves_it(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    workflow = (generated / ".github" / "workflows" / "release.yml").read_text()
+    commands = "\n".join(
+        line for line in workflow.splitlines() if not line.strip().startswith("#")
+    )
+
+    # The old amend + force-tag flow moved the tag after the release commit, so
+    # pinned consumers got stale cached wheels misreporting their version.
+    assert "git tag -f" not in commands
+    assert "--amend" not in commands
+    assert "uv run semantic-release version --no-push" in commands
+    # uv.lock is refreshed AFTER tagging as a separate follow-up commit.
+    assert "uv lock --upgrade-package high-view-power-interview" in commands
+    assert 'git commit -m "chore: refresh uv.lock for v$VERSION"' in commands
+    assert "git push origin main --tags" in commands
+
+
+def test_semantic_release_uses_dist_metadata_as_the_only_version_channel(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    pyproject = tomllib.loads((generated / "pyproject.toml").read_text())
+    semantic_release = pyproject["tool"]["semantic_release"]
+
+    # version is dynamic (hatch-vcs from the git tag): rewriting a version
+    # string in pyproject or __init__ is dead config that can disagree with
+    # dist metadata, and a pre-tag build_command only produces a dev wheel.
+    assert "version" in pyproject["project"]["dynamic"]
+    assert "version_toml" not in semantic_release
+    assert "version_variables" not in semantic_release
+    assert "build_command" not in semantic_release
+    assert semantic_release["tag_format"] == "v{version}"
+    assert semantic_release["changelog"]["default_templates"]["changelog_file"] == "CHANGELOG.md"
+
+
+def test_changelog_carries_the_semantic_release_insertion_marker(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    changelog = (generated / "CHANGELOG.md").read_text()
+
+    # Without the marker psr's update mode has nowhere to insert and the
+    # changelog stays silently empty release after release.
+    assert changelog.startswith("# Changelog\n")
+    assert "<!-- version list -->" in changelog
+
+
+def test_package_version_fallback_is_not_a_plausible_release_number(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    init = (generated / "src" / "high_view_power_interview" / "__init__.py").read_text()
+
+    assert '__version__ = "0.0.0+unknown"' in init
+    assert "updated by semantic-release" not in init

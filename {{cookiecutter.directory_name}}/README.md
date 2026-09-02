@@ -84,7 +84,7 @@ Data Version Control. Tracks large files and datasets outside git with support f
 Triggered on pull requests to `{{ cookiecutter.default_branch }}`. Runs ruff lint and format checks, then runs pytest across the Python version matrix ({{ cookiecutter.python_test_versions }}).
 {% endif %}
 ### `release.yml`
-Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-release to determine the next version from commit messages, updates `CHANGELOG.md`, creates a git tag, builds the package, and publishes a GitHub Release.
+Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-release to determine the next version from conventional commits. When a release is due it updates `CHANGELOG.md`, creates the release commit and tag once (the tag never moves afterwards), refreshes `uv.lock` in a follow-up commit, builds the package, and publishes a GitHub Release. Pushes without a `feat`/`fix` commit mint nothing.
 
 ## Project Structure
 
