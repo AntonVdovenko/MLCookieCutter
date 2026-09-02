@@ -17,12 +17,16 @@ Start here:
 1. Read this README for the repository overview.
 2. Read `docs/SETUP_AND_TESTING_GUIDE.md` for local setup and validation.
 3. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
-4. Read the relevant human-written spec in `docs/feature-specs/` before
+4. Read `docs/ADR.md` before changing structure, contracts, or default
+   behavior — the accepted decisions and why they were made.
+5. Read the relevant human-written spec in `docs/feature-specs/` before
    implementing a feature, fix, or experiment change.
 {% else %}
 1. Read this README for the repository overview and setup (Getting Started).
 2. Read `docs/ENGINEERING_LOGS.md` before debugging or changing behavior.
-3. Read the relevant human-written spec in `docs/feature-specs/` before
+3. Read `docs/ADR.md` before changing structure, contracts, or default
+   behavior — the accepted decisions and why they were made.
+4. Read the relevant human-written spec in `docs/feature-specs/` before
    implementing a feature or fix.
 {% endif %}
 Agent instructions:
@@ -35,6 +39,7 @@ Documentation map:
 | Document | Purpose |
 |---|---|
 | `docs/ENGINEERING_LOGS.md` | Timestamped implementation context, setup oddities, deployment notes, experiment changes, and validation results. |
+| `docs/ADR.md` | Architecture decision records — why structural, contract, and default-behavior decisions were made; newer entries supersede older ones. |
 | `docs/feature-specs/` | Human-written feature, fix, task, and experiment specs. Agent additions use italics; reversals of human context use strikethrough. |
 | `docs/C4_ARCHITECTURE.md` | Production architecture diagrams and service/data-flow context. Mandatory for production services. |
 | `docs/API_DOCUMENTATION.md` | External integration contract. Mandatory for production services. |
@@ -97,7 +102,7 @@ Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-r
 ├── data/             # Datasets (not tracked by git{% if cookiecutter.include_dvc == "true" %}; use DVC{% endif %})
 ├── models/           # Trained model artifacts
 ├── notebooks/        # Jupyter notebooks for exploration and analysis
-├── docs/             # Project docs, specs, logs, and experiment records
+├── docs/             # Engineering logs, ADRs, feature specs, architecture/API docs, experiment records
 ├── CLAUDE.md         # Claude Code instructions
 ├── AGENTS.md         # Codex and terminal-agent instructions
 ├── pyproject.toml    # Project metadata and tool configuration

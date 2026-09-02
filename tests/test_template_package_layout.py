@@ -1,4 +1,5 @@
 import json
+import re
 import tomllib
 from pathlib import Path
 
@@ -148,6 +149,7 @@ FULL_DOCS_ONLY_NAMES = [
 
 MINIMAL_DOCS_NAMES = [
     "ENGINEERING_LOGS.md",
+    "ADR.md",
     "C4_ARCHITECTURE.md",
     "API_DOCUMENTATION.md",
 ]
@@ -245,3 +247,46 @@ def test_package_version_fallback_is_not_a_plausible_release_number(tmp_path: Pa
 
     assert '__version__ = "0.0.0+unknown"' in init
     assert "updated by semantic-release" not in init
+
+
+def test_adr_document_has_rules_index_and_a_dated_seed_entry(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    adr = (generated / "docs" / "ADR.md").read_text()
+
+    for heading in ("## Rules", "## Entry Format", "## Index", "## ADR-0001"):
+        assert heading in adr
+    assert "| ADR-0001 |" in adr
+    assert "Deciders: Test Author" in adr
+    # The post-generation hook dates the seed entry; no placeholder survives.
+    assert "{GENERATION_DAY}" not in adr
+    assert re.search(r"^Date: \d{4}-\d{2}-\d{2}$", adr, flags=re.MULTILINE)
+    assert "high-view-power-interview" in adr
+
+
+@pytest.mark.parametrize("docs_set", ["minimal", "full"])
+def test_agent_instructions_require_reading_the_adr_and_stay_aligned(
+    tmp_path: Path, docs_set: str
+) -> None:
+    generated = render_template(tmp_path, docs_set=docs_set)
+
+    claude = (generated / "CLAUDE.md").read_text()
+    agents = (generated / "AGENTS.md").read_text()
+
+    for doc in (claude, agents):
+        assert "Read `docs/ADR.md`" in doc
+        assert "### `docs/ADR.md`" in doc
+        assert "## Implementation Logging and Decision Records" in doc
+    # Only the intro paragraph may differ between the two agent files.
+    marker = "## Required Agent Workflow"
+    assert claude.split(marker, 1)[1] == agents.split(marker, 1)[1]
+
+
+@pytest.mark.parametrize("docs_set", ["minimal", "full"])
+def test_readme_maps_the_adr_document(tmp_path: Path, docs_set: str) -> None:
+    generated = render_template(tmp_path, docs_set=docs_set)
+
+    readme = (generated / "README.md").read_text()
+
+    assert "Read `docs/ADR.md`" in readme
+    assert "| `docs/ADR.md` |" in readme
