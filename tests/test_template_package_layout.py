@@ -290,3 +290,31 @@ def test_readme_maps_the_adr_document(tmp_path: Path, docs_set: str) -> None:
 
     assert "Read `docs/ADR.md`" in readme
     assert "| `docs/ADR.md` |" in readme
+
+
+def test_agent_instructions_state_the_versioning_rules(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        doc = (generated / name).read_text()
+        assert "## Versioning" in doc
+        # Prose is hard-wrapped; compare phrases on whitespace-normalized text.
+        prose = " ".join(doc.split())
+        # Bumps come only from conventional commits; MAJOR is the owner's call.
+        assert "`feat` → minor, `fix` → patch" in prose
+        assert "never bump by hand" in prose
+        assert "`BREAKING CHANGE`" in prose
+        assert "never mark a commit breaking" in prose
+
+
+def test_agent_planning_artifacts_stay_local(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+
+    gitignore = (generated / ".gitignore").read_text().splitlines()
+    assert "docs/superpowers/" in gitignore
+    assert ".superpowers/" in gitignore
+
+    for name in ("CLAUDE.md", "AGENTS.md"):
+        prose = " ".join((generated / name).read_text().split())
+        assert "`docs/superpowers/`" in prose
+        assert "never be committed or force-added" in prose

@@ -41,10 +41,28 @@ ADR, an engineering-log entry, or a documented production contract, stop and
 ask the developer before changing behavior.
 {%- endif %}
 
+## Versioning
+
+Versions are minted automatically by python-semantic-release from conventional
+commits on `{{ cookiecutter.default_branch }}`: `feat` → minor, `fix` → patch —
+never bump by hand. A MAJOR bump is a human decision the owner makes case by
+case (via an explicit `BREAKING CHANGE` commit); agents must never mark a
+commit breaking, gate a release on a bump level, or propose retroactive majors
+on their own. A change that alters behavior consumers depend on must be
+declared in the PR description and the engineering log so they can pin
+deliberately — the generated CHANGELOG carries commit subjects only and is not
+a declaration channel.
+
 ## Documentation Standards
 
 Every project generated from this template has a `docs` folder. These documents
 are part of the development workflow, not optional afterthoughts.
+
+Skill- and agent-generated planning artifacts (`docs/superpowers/`,
+`.superpowers/` — plans, ledgers, review packages, scratch) are local working
+material: they are gitignored and must never be committed or force-added. The
+only planning document that ships is the human-reviewed spec in
+`docs/feature-specs/`.
 
 ### `docs/ENGINEERING_LOGS.md`
 

@@ -105,7 +105,11 @@ development:
 - `docs/DATASET.md`, `docs/EXPERIMENTS.md`, `docs/STATUS.md`, and
   `docs/EVALUATION_AND_FINDINGS.md` cover experiment and evaluation repos.
 - `CLAUDE.md` and `AGENTS.md` make the same rules visible to Claude Code, Codex,
-  and other terminal agents.
+  and other terminal agents, including the versioning rules: python-semantic-release
+  mints versions from conventional commits (`feat` → minor, `fix` → patch) and a
+  MAJOR bump is a human decision, never an agent's.
+- Agent planning artifacts (`docs/superpowers/`, `.superpowers/`) are gitignored;
+  only the human-reviewed spec in `docs/feature-specs/` ships.
 
 PR descriptions should point reviewers to the relevant docs, with priority on
 human-authored specs and context.

@@ -99,3 +99,8 @@ outputs
 # Big Files
 data/
 models/
+
+# Skill/agent planning artifacts — local working material, never committed
+# (rule in CLAUDE.md / AGENTS.md, Documentation Standards)
+docs/superpowers/
+.superpowers/
