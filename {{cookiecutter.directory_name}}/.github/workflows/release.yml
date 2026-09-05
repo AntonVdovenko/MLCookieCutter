@@ -50,16 +50,24 @@ jobs:
           VERSION=$(uv run semantic-release version --print)
           LAST=$(uv run semantic-release version --print-last-released)
           # --print echoes the CURRENT version when no release is due, so an
-          # emptiness check alone always enters the release path and then
-          # amends/force-tags already-pushed refs. Release only on a real bump.
+          # emptiness check alone would enter the release path on every push.
+          # Release only on a real bump.
           if [ -n "$VERSION" ] && [ "$VERSION" != "$LAST" ]; then
             echo "released=true" >> $GITHUB_OUTPUT
             echo "version=$VERSION" >> $GITHUB_OUTPUT
+            # psr creates the release commit and tag ONCE; the tag never
+            # moves afterwards. An amend + `git tag -f` flow lets a tag's
+            # resolution change after builds were cached, so pinned
+            # consumers get stale wheels misreporting their version.
             uv run semantic-release version --no-push
+            # uv.lock records this package's own tag-derived version, so
+            # refresh it AFTER tagging as a follow-up commit — never by
+            # amending the tagged commit.
             uv lock --upgrade-package {{ cookiecutter.project_name }}
-            git add uv.lock
-            git commit --amend --no-edit
-            git tag -f "v$VERSION"
+            if ! git diff --quiet uv.lock; then
+              git add uv.lock
+              git commit -m "chore: refresh uv.lock for v$VERSION"
+            fi
             git push origin {{ cookiecutter.default_branch }} --tags
           else
             echo "released=false" >> $GITHUB_OUTPUT

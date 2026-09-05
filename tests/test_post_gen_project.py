@@ -37,6 +37,36 @@ class PostGenerationHookTest(unittest.TestCase):
                 f"Generated at {fixed_now.astimezone().isoformat(timespec='seconds')}\n",
             )
 
+    def test_replaces_generation_day_placeholder_in_adr(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            docs_dir = Path(tmpdir) / "docs"
+            docs_dir.mkdir()
+            adr_path = docs_dir / "ADR.md"
+            adr_path.write_text("| ADR-0001 | Seed | {GENERATION_DAY} | Accepted |\n\nDate: {GENERATION_DAY}\n")
+
+            fixed_now = datetime.datetime(
+                2026,
+                6,
+                27,
+                12,
+                34,
+                56,
+                tzinfo=datetime.timezone.utc,
+            )
+
+            with (
+                mock.patch.object(post_gen_project, "Path", side_effect=lambda path: Path(tmpdir) / path),
+                mock.patch.object(post_gen_project.datetime, "datetime") as mocked_datetime,
+            ):
+                mocked_datetime.now.return_value = fixed_now
+                post_gen_project.replace_generation_date_placeholders()
+
+            day = fixed_now.astimezone().date().isoformat()
+            self.assertEqual(
+                adr_path.read_text(),
+                f"| ADR-0001 | Seed | {day} | Accepted |\n\nDate: {day}\n",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

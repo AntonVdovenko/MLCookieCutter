@@ -12,9 +12,9 @@ FULL_DOCS_ONLY = (
 )
 
 
-def current_timestamp():
-    """Return the local ISO timestamp used in generated documentation."""
-    return datetime.datetime.now().astimezone().isoformat(timespec="seconds")
+def generation_time():
+    """Return the local, timezone-aware generation time used in generated documentation."""
+    return datetime.datetime.now().astimezone()
 
 
 def replace_year_in_license():
@@ -27,12 +27,21 @@ def replace_year_in_license():
 
 
 def replace_generation_date_placeholders():
-    """Replace {GENERATION_DATE} placeholders in generated documentation."""
-    generation_date = current_timestamp()
-    for path in (Path("docs") / "ENGINEERING_LOGS.md",):
+    """Replace generation-time placeholders in generated documentation.
+
+    {GENERATION_DATE} becomes the full ISO timestamp (engineering-log entry
+    header); {GENERATION_DAY} becomes the calendar date (ADR Date lines).
+    """
+    now = generation_time()
+    replacements = {
+        "{GENERATION_DATE}": now.isoformat(timespec="seconds"),
+        "{GENERATION_DAY}": now.date().isoformat(),
+    }
+    for path in (Path("docs") / "ENGINEERING_LOGS.md", Path("docs") / "ADR.md"):
         if path.exists():
             content = path.read_text()
-            content = content.replace("{GENERATION_DATE}", generation_date)
+            for placeholder, value in replacements.items():
+                content = content.replace(placeholder, value)
             path.write_text(content)
 
 

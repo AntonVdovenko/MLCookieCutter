@@ -11,13 +11,14 @@ A ready-to-use project with:
 - **[hatch-vcs](https://github.com/ofek/hatch-vcs)** — automatic versioning from git tags
 - **[pytest](https://docs.pytest.org/)** — testing
 - **[pre-commit](https://pre-commit.com/)** — git hooks for code quality and conventional commits
-- **[python-semantic-release](https://python-semantic-release.readthedocs.io/)** — automated changelog and GitHub releases
+- **[python-semantic-release](https://python-semantic-release.readthedocs.io/)** — automated changelog and GitHub releases; the release tag is created once and never moved
 - **[DVC](https://dvc.org/)** *(optional)* — data version control with S3 support
 - **GitHub Actions** — CI (lint + test matrix) and automated release workflows
 - **Docker** — base Dockerfile with uv
-- **Agentic development docs** — generated docs, engineering logs, feature
-  specs, `CLAUDE.md`, and `AGENTS.md` so Claude Code, Codex, and terminal
-  agents follow the same implementation-context workflow
+- **Agentic development docs** — generated docs, engineering logs,
+  architecture decision records (ADRs), feature specs, `CLAUDE.md`, and
+  `AGENTS.md` so Claude Code, Codex, and terminal agents follow the same
+  implementation-context workflow
 
 ## Quick Start
 
@@ -42,7 +43,7 @@ You will be prompted for:
 | `keywords` | Comma-separated PyPI keywords | *(empty)* |
 | `include_dvc` | Include DVC dependencies | `false` |
 | `include_ci` | Include the PR CI workflow (`ci.yml`: ruff lint + pytest matrix); `release.yml` semantic versioning is always included | `true` |
-| `docs_set` | Docs profile: `minimal` (README, engineering-logs, feature-specs, C4, API docs) or `full` (adds the setup/testing guide and the experiment docs) | `minimal` |
+| `docs_set` | Docs profile: `minimal` (README, engineering-logs, ADR, feature-specs, C4, API docs) or `full` (adds the setup/testing guide and the experiment docs) | `minimal` |
 | `python_test_versions` | Comma-separated Python versions for CI test matrix; spaces are optional | `3.10, 3.11, 3.12, 3.13, 3.14` |
 
 Then initialize your project:
@@ -65,7 +66,7 @@ your_project/
 ├── data/             # Datasets (gitignored)
 ├── models/           # Model artifacts
 ├── notebooks/        # Jupyter notebooks
-├── docs/             # Docs, engineering logs, specs, API/setup/architecture, experiment records
+├── docs/             # Engineering logs, ADRs, specs, API/setup/architecture, experiment records
 ├── CLAUDE.md         # Claude Code instructions
 ├── AGENTS.md         # Codex and terminal-agent instructions
 ├── .github/workflows # CI and release workflows
@@ -90,6 +91,11 @@ development:
 
 - `docs/ENGINEERING_LOGS.md` records timestamped implementation context and is
   the first file agents should read during debugging.
+- `docs/ADR.md` holds numbered, immutable architecture decision records.
+  Agents read it before changing structure, contracts, or default behavior,
+  and add an entry in the same PR when their work makes or reverses such a
+  decision. A generated project starts with ADR-0001 recording the template's
+  tooling baseline.
 - `docs/feature-specs/` stores human-written specs for feature, fix, task, and
   experiment work. Agent additions use italics, and reversals of human context
   use strikethrough.
@@ -99,7 +105,11 @@ development:
 - `docs/DATASET.md`, `docs/EXPERIMENTS.md`, `docs/STATUS.md`, and
   `docs/EVALUATION_AND_FINDINGS.md` cover experiment and evaluation repos.
 - `CLAUDE.md` and `AGENTS.md` make the same rules visible to Claude Code, Codex,
-  and other terminal agents.
+  and other terminal agents, including the versioning rules: python-semantic-release
+  mints versions from conventional commits (`feat` → minor, `fix` → patch) and a
+  MAJOR bump is a human decision, never an agent's.
+- Agent planning artifacts (`docs/superpowers/`, `.superpowers/`) are gitignored;
+  only the human-reviewed spec in `docs/feature-specs/` ships.
 
 PR descriptions should point reviewers to the relevant docs, with priority on
 human-authored specs and context.

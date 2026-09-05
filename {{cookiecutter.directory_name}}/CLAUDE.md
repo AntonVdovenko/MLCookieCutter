@@ -12,8 +12,10 @@ or dependency/environment update:
 {%- if cookiecutter.docs_set == "full" %}
 
 1. Read `docs/ENGINEERING_LOGS.md`.
-2. Read the relevant files in `docs/feature-specs/`.
-3. Read the documentation file that matches the work area:
+2. Read `docs/ADR.md` — the architecture decision records. An `Accepted`
+   decision is settled: do not re-litigate it or quietly reverse it in code.
+3. Read the relevant files in `docs/feature-specs/`.
+4. Read the documentation file that matches the work area:
    - production architecture: `docs/C4_ARCHITECTURE.md`
    - external integration/API behavior: `docs/API_DOCUMENTATION.md`
    - setup, testing, Docker, Kubernetes, smoke tests: `docs/SETUP_AND_TESTING_GUIDE.md`
@@ -21,26 +23,46 @@ or dependency/environment update:
      `docs/EXPERIMENTS.md`, `docs/STATUS.md`,
      `docs/EVALUATION_AND_FINDINGS.md`
 
-If the current request conflicts with an existing feature spec, engineering log,
-or documented production contract, stop and ask the developer before changing
-behavior.
+If the current request conflicts with an existing feature spec, an `Accepted`
+ADR, an engineering-log entry, or a documented production contract, stop and
+ask the developer before changing behavior.
 {%- else %}
 
 1. Read `docs/ENGINEERING_LOGS.md`.
-2. Read the relevant files in `docs/feature-specs/`.
-3. Read the documentation file that matches the work area:
+2. Read `docs/ADR.md` — the architecture decision records. An `Accepted`
+   decision is settled: do not re-litigate it or quietly reverse it in code.
+3. Read the relevant files in `docs/feature-specs/`.
+4. Read the documentation file that matches the work area:
    - architecture: `docs/C4_ARCHITECTURE.md`
    - external integration/API behavior: `docs/API_DOCUMENTATION.md`
 
-If the current request conflicts with an existing feature spec, engineering log,
-or documented production contract, stop and ask the developer before changing
-behavior.
+If the current request conflicts with an existing feature spec, an `Accepted`
+ADR, an engineering-log entry, or a documented production contract, stop and
+ask the developer before changing behavior.
 {%- endif %}
+
+## Versioning
+
+Versions are minted automatically by python-semantic-release from conventional
+commits on `{{ cookiecutter.default_branch }}`: `feat` → minor, `fix` → patch —
+never bump by hand. A MAJOR bump is a human decision the owner makes case by
+case (via an explicit `BREAKING CHANGE` commit); agents must never mark a
+commit breaking, gate a release on a bump level, or propose retroactive majors
+on their own. A change that alters behavior consumers depend on must be
+declared in the PR description and the engineering log so they can pin
+deliberately — the generated CHANGELOG carries commit subjects only and is not
+a declaration channel.
 
 ## Documentation Standards
 
 Every project generated from this template has a `docs` folder. These documents
 are part of the development workflow, not optional afterthoughts.
+
+Skill- and agent-generated planning artifacts (`docs/superpowers/`,
+`.superpowers/` — plans, ledgers, review packages, scratch) are local working
+material: they are gitignored and must never be committed or force-added. The
+only planning document that ships is the human-reviewed spec in
+`docs/feature-specs/`.
 
 ### `docs/ENGINEERING_LOGS.md`
 
@@ -51,6 +73,25 @@ are part of the development workflow, not optional afterthoughts.
 - Use it as the first line of defense when debugging setup, runtime, hardware,
   driver, deployment, or experiment oddities.
 - Keep newest entries at the top.
+
+### `docs/ADR.md`
+
+- Architecture decision records: one numbered `ADR-NNNN` entry per
+  significant decision — context, decision, consequences, sources — oldest
+  first, with an index table at the top.
+- Qualifying decisions: structural choices (module boundaries, service or
+  package layout, the configuration model), public-contract choices (API
+  shape, data formats, versioning and declaration policy), default runtime
+  behavior that consumers or experiments depend on, tooling or dependency
+  choices with lasting effect, and any reversal of a recorded decision. Bug
+  fixes, parameter retunes, refactors that preserve an existing decision, and
+  documentation wording do not qualify — they go to the engineering log only.
+- `Accepted` entries are immutable. To change course, add a new entry that
+  says what it replaces and why, and change only the old entry's Status line
+  to `Superseded by ADR-NNNN`. Never rewrite an `Accepted` entry's content.
+- Mark an entry `Accepted` only when the developer made or explicitly
+  approved the decision (in a spec, in review, or in the session); otherwise
+  write it as `Proposed` and ask the developer to accept it in the PR.
 
 ### `docs/feature-specs/`
 
@@ -125,7 +166,7 @@ Experiment and evaluation codebases must also maintain:
   should add human context to the relevant spec and the agent should update any
   affected generated docs.
 
-## Implementation Logging
+## Implementation Logging and Decision Records
 
 When you complete meaningful implementation work, add an entry to
 `docs/ENGINEERING_LOGS.md` with:
@@ -137,3 +178,8 @@ When you complete meaningful implementation work, add an entry to
 - reason/context;
 - validation commands and results;
 - follow-ups or known risks.
+
+When that work introduces, changes, or reverses an architecture decision (see
+the `docs/ADR.md` rules above), also add an ADR entry in the same PR and cite
+its number from the engineering-log entry. The log records what was built and
+how; the ADR records why the decision was made.
