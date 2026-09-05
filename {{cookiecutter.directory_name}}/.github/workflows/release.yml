@@ -75,7 +75,11 @@ jobs:
 
       - name: Build package
         if: {% raw %}steps.release.outputs.released == 'true'{% endraw %}
-        run: uv build
+        run: |
+          # The branch may be one lockfile commit past the immutable release
+          # tag. Build the tagged source so hatch-vcs emits the release version.
+          git checkout --detach "v{% raw %}${{ steps.release.outputs.version }}{% endraw %}"
+          uv build
 
       - name: Upload to GitHub Release
         if: {% raw %}steps.release.outputs.released == 'true'{% endraw %}
