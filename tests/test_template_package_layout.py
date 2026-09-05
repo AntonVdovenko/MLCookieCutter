@@ -1,6 +1,10 @@
 import json
+import os
 import re
+import subprocess
+import textwrap
 import tomllib
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -46,6 +50,46 @@ def render_template(tmp_path: Path, **extra_context: str) -> Path:
             config_file=str(config_file),
             extra_context=context,
         )
+    )
+
+
+def workflow_run_script(workflow: str, step_name: str) -> str:
+    step = workflow.split(f"      - name: {step_name}\n", 1)[1].split(
+        "\n      - name:", 1
+    )[0]
+    lines = step.splitlines()
+    run_index = next(
+        index for index, line in enumerate(lines) if line.startswith("        run:")
+    )
+    run_line = lines[run_index]
+    if run_line.strip() != "run: |":
+        return run_line.split("run:", 1)[1].strip()
+    return textwrap.dedent("\n".join(lines[run_index + 1 :]))
+
+
+def run_checked(
+    command: list[str], cwd: Path, env: dict[str, str] | None = None
+) -> str:
+    return subprocess.run(
+        command,
+        cwd=cwd,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def wheel_version(wheel: Path) -> str:
+    with zipfile.ZipFile(wheel) as archive:
+        metadata_path = next(
+            name for name in archive.namelist() if name.endswith(".dist-info/METADATA")
+        )
+        metadata = archive.read(metadata_path).decode()
+    return next(
+        line.removeprefix("Version: ")
+        for line in metadata.splitlines()
+        if line.startswith("Version: ")
     )
 
 
@@ -210,6 +254,49 @@ def test_release_workflow_creates_the_tag_once_and_never_moves_it(tmp_path: Path
     assert "uv lock --upgrade-package high-view-power-interview" in commands
     assert 'git commit -m "chore: refresh uv.lock for v$VERSION"' in commands
     assert "git push origin main --tags" in commands
+
+
+def test_release_workflow_builds_from_the_exact_tag_after_lockfile_followup(
+    tmp_path: Path,
+) -> None:
+    generated = render_template(tmp_path)
+    workflow = (generated / ".github" / "workflows" / "release.yml").read_text()
+
+    for command in (
+        ["git", "init", "-b", "main"],
+        ["git", "config", "user.name", "Release Test"],
+        ["git", "config", "user.email", "release-test@example.com"],
+        ["git", "add", "."],
+        ["git", "commit", "-m", "feat: initial release"],
+        ["git", "tag", "v1.2.3"],
+    ):
+        run_checked(command, generated)
+
+    # Model the workflow's generated-only follow-up commit after PSR has made
+    # the immutable release tag. Building this HEAD directly is a dev version.
+    (generated / "uv.lock").write_text(
+        'version = 1\nrevision = 3\nrequires-python = ">=3.12"\n'
+    )
+    run_checked(["git", "add", "uv.lock"], generated)
+    run_checked(["git", "commit", "-m", "chore: refresh uv.lock for v1.2.3"], generated)
+
+    build_env = os.environ | {"UV_CACHE_DIR": str(tmp_path / "uv-cache")}
+    followup_dist = tmp_path / "followup-dist"
+    run_checked(["uv", "build", "--out-dir", str(followup_dist)], generated, build_env)
+    followup_wheel = next(followup_dist.glob("*.whl"))
+    assert wheel_version(followup_wheel) != "1.2.3"
+
+    build_script = workflow_run_script(workflow, "Build package").replace(
+        "${{ steps.release.outputs.version }}", "1.2.3"
+    )
+    run_checked(["bash", "-euxo", "pipefail", "-c", build_script], generated, build_env)
+
+    release_wheel = next((generated / "dist").glob("*.whl"))
+    assert wheel_version(release_wheel) == "1.2.3"
+    assert (
+        run_checked(["git", "describe", "--tags", "--exact-match"], generated)
+        == "v1.2.3"
+    )
 
 
 def test_semantic_release_uses_dist_metadata_as_the_only_version_channel(tmp_path: Path) -> None:
