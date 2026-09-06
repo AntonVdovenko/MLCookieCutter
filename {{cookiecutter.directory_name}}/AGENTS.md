@@ -183,3 +183,17 @@ When that work introduces, changes, or reverses an architecture decision (see
 the `docs/ADR.md` rules above), also add an ADR entry in the same PR and cite
 its number from the engineering-log entry. The log records what was built and
 how; the ADR records why the decision was made.
+
+Documentation is part of done. A change that alters a public signature, a
+dataclass field, a CLI flag, or a route updates `docs/API_DOCUMENTATION.md`;
+one that adds, renames, or removes a module, a service, or a script updates
+`docs/C4_ARCHITECTURE.md`; one that changes behavior, layout, or workflow a
+reader sees updates `README.md`. `uv run pytest` includes
+`tests/test_docs_freshness.py` (documented signatures against the code, named
+paths against the tree, modules against the C4 doc, the README's
+documentation map, the pinned install tag if any), and a pre-PR hook
+(`.claude/hooks/docs_gate.py`, wired for Claude Code in
+`.claude/settings.json`) refuses to open a pull request that changes code
+without touching them or without an engineering-log entry. When nothing
+needed changing, say so in the pull request description and prefix the
+command with `DOCS_REVIEWED=1`.
