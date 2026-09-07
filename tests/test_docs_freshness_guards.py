@@ -68,3 +68,51 @@ def test_freshness_and_gate_tests_pass_on_a_fresh_project(tmp_path: Path, docs_s
         check=False,
     )
     assert run.returncode == 0, run.stdout + run.stderr
+
+
+def _run_map_test(generated: Path) -> subprocess.CompletedProcess:
+    env = os.environ | {"PYTHONPATH": str(generated / "src")}
+    return subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "tests/test_docs_freshness.py::test_readme_documentation_map_lists_every_docs_entry",
+        ],
+        cwd=generated,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def _git(cwd: Path, *args: str) -> None:
+    env = os.environ | {
+        "GIT_AUTHOR_NAME": "t",
+        "GIT_AUTHOR_EMAIL": "t@t",
+        "GIT_COMMITTER_NAME": "t",
+        "GIT_COMMITTER_EMAIL": "t@t",
+    }
+    subprocess.run(["git", *args], cwd=cwd, env=env, capture_output=True, text=True, check=True)
+
+
+def test_documentation_map_test_ignores_untracked_drafts_but_not_tracked_docs(tmp_path: Path) -> None:
+    generated = render_template(tmp_path)
+    _git(generated, "init", "-q", "-b", "main")
+    _git(generated, "add", ".")
+    _git(generated, "commit", "-qm", "init")
+
+    # A draft somebody dropped into docs/ without committing is nobody's documentation yet.
+    (generated / "docs" / "local_draft.md").write_text("# draft\n")
+    assert _run_map_test(generated).returncode == 0
+
+    # Once it is tracked, the README's documentation map has to list it.
+    _git(generated, "add", "docs/local_draft.md")
+    _git(generated, "commit", "-qm", "docs: draft")
+    failing = _run_map_test(generated)
+    assert failing.returncode != 0
+    assert "docs/local_draft.md" in failing.stdout
