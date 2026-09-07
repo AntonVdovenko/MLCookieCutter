@@ -19,6 +19,12 @@ A ready-to-use project with:
   architecture decision records (ADRs), feature specs, `CLAUDE.md`, and
   `AGENTS.md` so Claude Code, Codex, and terminal agents follow the same
   implementation-context workflow
+- **Documentation freshness guards** — a test module that checks the API
+  doc's signatures against the code, the C4 doc against the modules, every
+  documented path against the tree and the README's documentation map; a
+  Claude Code pre-PR hook that refuses a pull request for a code change
+  without a docs pass; and a release commit that rewrites a pinned install
+  tag
 
 ## Quick Start
 
@@ -69,6 +75,7 @@ your_project/
 ├── docs/             # Engineering logs, ADRs, specs, API/setup/architecture, experiment records
 ├── CLAUDE.md         # Claude Code instructions
 ├── AGENTS.md         # Codex and terminal-agent instructions
+├── .claude/          # Claude Code project settings and the pre-PR docs gate hook
 ├── .github/workflows # CI and release workflows
 ├── pyproject.toml    # Project metadata and tool config
 ├── Makefile          # Dev commands
@@ -108,6 +115,19 @@ development:
   and other terminal agents, including the versioning rules: python-semantic-release
   mints versions from conventional commits (`feat` → minor, `fix` → patch) and a
   MAJOR bump is a human decision, never an agent's.
+- Documentation is part of done, and three guards enforce it without anyone
+  asking: `tests/test_docs_freshness.py` fails the test run when the API doc
+  prints a signature the code does not have, a module has no place in the C4
+  doc, a living doc names a path that does not exist, the README's
+  documentation map misses an entry, or an install snippet pins a tag the
+  release commit will not rewrite; `.claude/hooks/docs_gate.py` (a Claude Code
+  `PreToolUse` hook in `.claude/settings.json`) blocks `gh pr create` on a
+  branch that changes code without touching the README, the API doc or the C4
+  doc, or without an engineering-log entry — `DOCS_REVIEWED=1` in front of the
+  command is the deliberate override; and `version_variables` in
+  `pyproject.toml` lets the release commit rewrite a pinned install tag
+  (`"README.md:tag:tf"`), so a README never shows a version behind the latest
+  release.
 - Agent planning artifacts (`docs/superpowers/`, `.superpowers/`) are gitignored;
   only the human-reviewed spec in `docs/feature-specs/` ships.
 

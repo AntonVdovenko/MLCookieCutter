@@ -55,6 +55,19 @@ PR descriptions should point reviewers to the relevant docs. Review priority is
 human-authored specs and context first, then agent-authored or agent-updated
 architecture, API, setup, and engineering-log entries.
 
+Three guards keep these documents current without anyone asking. `uv run
+pytest` includes `tests/test_docs_freshness.py`: every signature the API doc
+prints in a Python code block is checked against the code, every module must
+have a place in the C4 doc, every path the living docs name must exist, the
+README's documentation map must list every entry under `docs/`, and an install
+snippet that pins the release tag must be listed for the release commit to
+rewrite. A Claude Code hook (`.claude/hooks/docs_gate.py`, wired in
+`.claude/settings.json`) refuses to open a pull request that changes code
+without touching the README, the API doc or the C4 doc, or without an
+engineering-log entry — prefix the command with `DOCS_REVIEWED=1` after a
+review that found nothing to change. Documentation is part of done; the rule
+is spelled out in `CLAUDE.md` and `AGENTS.md`.
+
 ## Tooling
 
 This project uses the following tools:
@@ -103,6 +116,7 @@ Triggered on push to `{{ cookiecutter.default_branch }}`. Runs python-semantic-r
 ├── models/           # Trained model artifacts
 ├── notebooks/        # Jupyter notebooks for exploration and analysis
 ├── docs/             # Engineering logs, ADRs, feature specs, architecture/API docs, experiment records
+├── .claude/          # Claude Code project settings and the pre-PR docs gate hook
 ├── CLAUDE.md         # Claude Code instructions
 ├── AGENTS.md         # Codex and terminal-agent instructions
 ├── pyproject.toml    # Project metadata and tool configuration

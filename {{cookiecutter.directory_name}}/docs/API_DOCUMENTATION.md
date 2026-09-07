@@ -4,9 +4,14 @@ This document is mandatory for production services. It should be the only
 document external developers or teams need in order to integrate with this
 service.
 
+{%- if cookiecutter.docs_set == "full" %}
 If this repository is experiment-only and exposes no public API, state that
 clearly here and point readers to `README.md`,
 `docs/SETUP_AND_TESTING_GUIDE.md`, and the experiment docs.
+{%- else %}
+If this repository is experiment-only and exposes no public API, state that
+clearly here and point readers to `README.md` and `docs/ENGINEERING_LOGS.md`.
+{%- endif %}
 
 ## Integration Status
 
@@ -75,5 +80,7 @@ Document each externally callable route with:
 - Required environment variables and secrets are documented.
 - Caller-owned identifiers are clearly named.
 - Response fields used by external teams are stable or versioned.
+{%- if cookiecutter.docs_set == "full" %}
 - Smoke-test commands are linked from `docs/SETUP_AND_TESTING_GUIDE.md`.
+{%- endif %}
 - Contract changes are reflected in `docs/ENGINEERING_LOGS.md`.

@@ -155,7 +155,11 @@ testpaths = ["tests"]
 # channel: version_toml/version_variables would be dead (version is dynamic)
 # and would let other channels disagree with dist metadata. No build_command:
 # the release workflow builds AFTER tagging, so a pre-tag build would only
-# produce a stray dev-versioned wheel.
+# produce a stray dev-versioned wheel. The one thing version_variables is for
+# here: docs that pin the release tag (an install snippet `tag = "vX.Y.Z"`).
+# List them as version_variables = ["README.md:tag:tf"] and the release commit
+# rewrites them; tests/test_docs_freshness.py checks that every pinned tag is
+# listed.
 [tool.semantic_release]
 branch = "{{cookiecutter.default_branch}}"
 tag_format = "v{version}"

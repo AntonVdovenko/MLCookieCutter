@@ -104,3 +104,6 @@ models/
 # (rule in CLAUDE.md / AGENTS.md, Documentation Standards)
 docs/superpowers/
 .superpowers/
+
+# Personal Claude Code settings; the shared .claude/settings.json is committed
+.claude/settings.local.json
