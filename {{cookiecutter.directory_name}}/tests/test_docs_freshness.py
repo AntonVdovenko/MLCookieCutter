@@ -258,12 +258,27 @@ def test_paths_named_in_living_docs_exist(doc: Path):
 
 
 def test_readme_documentation_map_lists_every_docs_entry():
+    """Every tracked entry directly under docs/ must appear in the README's documentation map.
+    A local draft that is not in git is nobody's documentation yet; before the first commit
+    (no git history) every entry on disk counts."""
     text = README.read_text()
-    entries = sorted(
-        (f"docs/{p.name}" if p.is_file() else f"docs/{p.name}/")
-        for p in (ROOT / "docs").iterdir()
-        if not p.name.startswith(".") and not _gitignored(f"docs/{p.name}")
-    )
+    tracked = subprocess.run(
+        ["git", "ls-files", "docs"], cwd=ROOT, capture_output=True, text=True, check=False
+    ).stdout.splitlines()
+    if tracked:
+        entries = sorted(
+            {
+                f"docs/{parts[1]}" if len(parts) == 2 else f"docs/{parts[1]}/"
+                for parts in (Path(line).parts for line in tracked)
+                if len(parts) >= 2
+            }
+        )
+    else:
+        entries = sorted(
+            (f"docs/{p.name}" if p.is_file() else f"docs/{p.name}/")
+            for p in (ROOT / "docs").iterdir()
+            if not p.name.startswith(".") and not _gitignored(f"docs/{p.name}")
+        )
     missing = [e for e in entries if f"`{e}`" not in text and f"`{e.rstrip('/')}`" not in text]
     assert not missing, f"README documentation map does not list: {missing}"
 
